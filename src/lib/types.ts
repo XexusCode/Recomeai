@@ -1,6 +1,9 @@
-import type { ItemType, Source } from "@prisma/client";
+import type { $Enums } from "@prisma/client";
 
 import type { Locale } from "@/i18n/config";
+
+type ItemType = $Enums.ItemType;
+type Source = $Enums.Source;
 
 export type ProviderName = Source | "tmdb";
 
