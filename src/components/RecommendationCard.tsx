@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useRef } from "react";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
-import { Source } from "@prisma/client";
 
 import { AvailabilityLogo } from "@/components/AvailabilityLogo";
 import { normalizeProviderLabel } from "@/lib/availability";
@@ -375,16 +374,18 @@ function schemaTypeFor(type: RecommendationPayload["type"]): string {
 }
 
 function resolveSourceMeta(source?: RecommendationPayload["source"] | null): { label: string; url: string } {
-  const normalized = (source ?? undefined) as string | undefined;
+  const normalized = typeof source === "string" ? source.toLowerCase() : undefined;
   switch (normalized) {
     case "tmdb":
       return { label: "TMDb", url: "https://www.themoviedb.org/" };
-    case Source.omdb:
+    case "omdb":
       return { label: "OMDb", url: "https://www.omdbapi.com/" };
-    case Source.anilist:
+    case "anilist":
       return { label: "AniList", url: "https://anilist.co/" };
-    case Source.googlebooks:
+    case "googlebooks":
       return { label: "Google Books", url: "https://books.google.com/" };
+    case "mock":
+      return { label: "Recomeai Mock Catalog", url: "https://recomeai.com/privacy" };
     default:
       return { label: "Recomeai", url: "https://recomeai.com/privacy" };
   }
