@@ -22,8 +22,6 @@ const CATEGORY_TYPE: Record<HubCategory, "movie" | "tv" | "anime" | "book"> = {
 
 const siteUrl = env.NEXT_PUBLIC_SITE_URL ?? "https://recomeai.com";
 
-export const HUB_PAGE_REVALIDATE = 60 * 60; // hourly refresh
-
 const ACTION_TYPE: Record<RecommendationPayload["type"], "WatchAction" | "ReadAction"> = {
   movie: "WatchAction",
   tv: "WatchAction",
