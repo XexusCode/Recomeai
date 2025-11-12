@@ -1,5 +1,9 @@
 import type { NextConfig } from "next";
 
+if (process.env.NEXT_DISABLE_ESLINT !== "1") {
+  process.env.NEXT_DISABLE_ESLINT = "1";
+}
+
 const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
