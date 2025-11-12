@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+}
+
+enum Source {
+  mock
+  omdb
+  anilist
+  googlebooks
+  tmdb
+}
+
+enum ItemType {
+  movie
+  tv
+  anime
+  book
+}
+
+model Item {
+  id            String                      @id @default(cuid())
+  source        Source
+  sourceId      String
+  type          ItemType
+  title         String
+  titleNorm     Unsupported("tsvector")
+  year          Int?
+  genres        String[]
+  synopsis      String?
+  popularity    Float                       @default(0)
+  popularityRaw Float?
+  posterUrl     String?
+  franchiseKey  String?
+  embedding     Unsupported("vector")?
+  availability  Json?
+  providerUrl   String?
+  createdAt     DateTime                    @default(now())
+  updatedAt     DateTime                    @updatedAt
+  localizations ItemLocalization[]
+
+  @@index([type, year, popularity])
+  @@index([franchiseKey])
+  @@unique([source, sourceId])
+}
+
+model ItemLocalization {
+  id           String   @id @default(cuid())
+  item         Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  itemId       String
+  locale       String
+  title        String
+  synopsis     String?
+  availability Json?
+  reason       String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([itemId, locale])
+  @@index([locale])
+}
+

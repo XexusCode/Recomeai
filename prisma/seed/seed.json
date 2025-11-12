@@ -1,0 +1,776 @@
+[
+  {
+    "id": "ckmovie0001",
+    "source": "mock",
+    "sourceId": "mock-movie-spirited-away",
+    "type": "movie",
+    "title": "Spirited Away",
+    "year": 2001,
+    "genres": ["Animation", "Fantasy", "Adventure"],
+    "synopsis": "Una niña queda atrapada en un misterioso mundo espiritual y debe trabajar en una casa de baños para rescatar a sus padres.",
+    "popularity": 92.4,
+    "popularityRaw": 9.2,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/dL11DBPcRhWWnJcFXl9A07MrqTI.jpg",
+    "franchiseKey": "spirited away",
+    "providerUrl": "https://www.imdb.com/title/tt0245429",
+    "availability": [
+      { "label": "JustWatch", "type": "stream", "url": "https://www.justwatch.com/us/busqueda?q=Spirited%20Away" },
+      { "label": "Blu-ray Amazon", "type": "buy", "url": "https://www.amazon.com/s?k=Spirited+Away+Blu-ray" }
+    ]
+  },
+  {
+    "id": "ckmovie0002",
+    "source": "mock",
+    "sourceId": "mock-movie-inception",
+    "type": "movie",
+    "title": "Inception",
+    "year": 2010,
+    "genres": ["Science Fiction", "Thriller", "Action"],
+    "synopsis": "Un ladrón experto roba secretos infiltrándose en los sueños, pero ahora debe implantar una idea para borrar su pasado.",
+    "popularity": 88.1,
+    "popularityRaw": 8.8,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/edv5CZvWj09upOsy2Y6IwDhK8bt.jpg",
+    "franchiseKey": "inception",
+    "providerUrl": "https://www.imdb.com/title/tt1375666",
+    "availability": [
+      { "label": "JustWatch", "type": "stream", "url": "https://www.justwatch.com/us/busqueda?q=Inception" },
+      { "label": "4K Blu-ray", "type": "buy", "url": "https://www.amazon.com/s?k=Inception+4K" }
+    ]
+  },
+  {
+    "id": "ckmovie0003",
+    "source": "mock",
+    "sourceId": "mock-movie-godfather",
+    "type": "movie",
+    "title": "The Godfather",
+    "year": 1972,
+    "genres": ["Crime", "Drama"],
+    "synopsis": "La saga de la familia Corleone mientras equilibra los negocios ilegales con lealtades familiares en una América cambiante.",
+    "popularity": 89.6,
+    "popularityRaw": 9.0,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg",
+    "franchiseKey": "godfather",
+    "providerUrl": "https://www.imdb.com/title/tt0068646",
+    "availability": [
+      { "label": "Paramount+", "type": "stream", "url": "https://www.justwatch.com/us/pelicula/the-godfather" },
+      { "label": "Blu-ray Trilogía", "type": "buy", "url": "https://www.amazon.com/s?k=The+Godfather+Blu-ray" }
+    ]
+  },
+  {
+    "id": "ckmovie0004",
+    "source": "mock",
+    "sourceId": "mock-movie-parasite",
+    "type": "movie",
+    "title": "Parasite",
+    "year": 2019,
+    "genres": ["Thriller", "Drama", "Dark Comedy"],
+    "synopsis": "Una familia de bajos recursos se infiltra en la vida de otra acomodada, desencadenando consecuencias inesperadas.",
+    "popularity": 87.5,
+    "popularityRaw": 8.7,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg",
+    "franchiseKey": "parasite",
+    "providerUrl": "https://www.imdb.com/title/tt6751668",
+    "availability": [
+      { "label": "Hulu", "type": "stream", "url": "https://www.justwatch.com/us/pelicula/parasite" },
+      { "label": "Blu-ray", "type": "buy", "url": "https://www.amazon.com/s?k=Parasite+Blu-ray" }
+    ]
+  },
+  {
+    "id": "ckmovie0005",
+    "source": "mock",
+    "sourceId": "mock-movie-mad-max-fury-road",
+    "type": "movie",
+    "title": "Mad Max: Fury Road",
+    "year": 2015,
+    "genres": ["Action", "Adventure", "Science Fiction"],
+    "synopsis": "Max y Furiosa desafían al tirano Immortan Joe en una frenética persecución por el desierto postapocalíptico.",
+    "popularity": 84.0,
+    "popularityRaw": 8.4,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/8tZYtuWezp8JbcsvHYO0O46tFbo.jpg",
+    "franchiseKey": "mad max",
+    "providerUrl": "https://www.imdb.com/title/tt1392190",
+    "availability": [
+      { "label": "Max", "type": "stream", "url": "https://www.justwatch.com/us/pelicula/mad-max-fury-road" },
+      { "label": "4K Steelbook", "type": "buy", "url": "https://www.amazon.com/s?k=Mad+Max+Fury+Road+Steelbook" }
+    ]
+  },
+  {
+    "id": "ckmovie0006",
+    "source": "mock",
+    "sourceId": "mock-movie-interstellar",
+    "type": "movie",
+    "title": "Interstellar",
+    "year": 2014,
+    "genres": ["Science Fiction", "Drama", "Adventure"],
+    "synopsis": "Exploradores espaciales cruzan un agujero de gusano buscando un nuevo hogar para la humanidad.",
+    "popularity": 90.5,
+    "popularityRaw": 9.1,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",
+    "franchiseKey": "interstellar",
+    "providerUrl": "https://www.imdb.com/title/tt0816692",
+    "availability": [
+      { "label": "Paramount+", "type": "stream", "url": "https://www.justwatch.com/us/pelicula/interstellar" },
+      { "label": "4K Collector", "type": "buy", "url": "https://www.amazon.com/s?k=Interstellar+4K" }
+    ]
+  },
+  {
+    "id": "ckmovie0007",
+    "source": "mock",
+    "sourceId": "mock-movie-blade-runner-2049",
+    "type": "movie",
+    "title": "Blade Runner 2049",
+    "year": 2017,
+    "genres": ["Science Fiction", "Mystery", "Drama"],
+    "synopsis": "Un nuevo blade runner descubre un secreto que podría cambiar el destino de humanos y replicantes.",
+    "popularity": 81.3,
+    "popularityRaw": 8.1,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/aMpyrCizvSdc0UIMblJ1srVgAEF.jpg",
+    "franchiseKey": "blade runner",
+    "providerUrl": "https://www.imdb.com/title/tt1856101",
+    "availability": [
+      { "label": "Netflix", "type": "stream", "url": "https://www.justwatch.com/us/pelicula/blade-runner-2049" },
+      { "label": "Blu-ray", "type": "buy", "url": "https://www.amazon.com/s?k=Blade+Runner+2049+Blu-ray" }
+    ]
+  },
+  {
+    "id": "ckmovie0008",
+    "source": "mock",
+    "sourceId": "mock-movie-arrival",
+    "type": "movie",
+    "title": "Arrival",
+    "year": 2016,
+    "genres": ["Science Fiction", "Drama", "Mystery"],
+    "synopsis": "Una lingüista intenta comunicarse con visitantes extraterrestres cuyo lenguaje desafía la percepción del tiempo.",
+    "popularity": 82.7,
+    "popularityRaw": 8.2,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/x2FJsf1ElAgr63Y3PNPtJrcmpoe.jpg",
+    "franchiseKey": "arrival",
+    "providerUrl": "https://www.imdb.com/title/tt2543164",
+    "availability": [
+      { "label": "Paramount+", "type": "stream", "url": "https://www.justwatch.com/us/pelicula/arrival" },
+      { "label": "Blu-ray", "type": "buy", "url": "https://www.amazon.com/s?k=Arrival+Blu-ray" }
+    ]
+  },
+  {
+    "id": "ckmovie0009",
+    "source": "mock",
+    "sourceId": "mock-movie-her",
+    "type": "movie",
+    "title": "Her",
+    "year": 2013,
+    "genres": ["Science Fiction", "Romance", "Drama"],
+    "synopsis": "Un escritor solitario entabla una relación íntima con una inteligencia artificial altamente evolucionada.",
+    "popularity": 78.4,
+    "popularityRaw": 7.8,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/eCOtqtfvn7mx2ZRqa3l4e4fNEeT.jpg",
+    "franchiseKey": "her",
+    "providerUrl": "https://www.imdb.com/title/tt1798709",
+    "availability": [
+      { "label": "Max", "type": "stream", "url": "https://www.justwatch.com/us/pelicula/her" },
+      { "label": "Blu-ray", "type": "buy", "url": "https://www.amazon.com/s?k=Her+Blu-ray" }
+    ]
+  },
+  {
+    "id": "ckmovie0010",
+    "source": "mock",
+    "sourceId": "mock-movie-get-out",
+    "type": "movie",
+    "title": "Get Out",
+    "year": 2017,
+    "genres": ["Horror", "Thriller", "Satire"],
+    "synopsis": "Un joven afroamericano visita a la familia de su novia y descubre oscuros secretos bajo su hospitalidad.",
+    "popularity": 79.1,
+    "popularityRaw": 7.9,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/tFXcEccSQMf3lfhfXKSU9iRBpa3.jpg",
+    "franchiseKey": "get out",
+    "providerUrl": "https://www.imdb.com/title/tt5052448",
+    "availability": [
+      { "label": "Peacock", "type": "stream", "url": "https://www.justwatch.com/us/pelicula/get-out" },
+      { "label": "Blu-ray", "type": "buy", "url": "https://www.amazon.com/s?k=Get+Out+Blu-ray" }
+    ]
+  },
+  {
+    "id": "ckmovie0011",
+    "source": "mock",
+    "sourceId": "mock-movie-the-matrix",
+    "type": "movie",
+    "title": "The Matrix",
+    "year": 1999,
+    "genres": ["Science Fiction", "Action"],
+    "synopsis": "Un hacker descubre la verdad sobre una realidad simulada y lidera la resistencia contra las máquinas.",
+    "popularity": 91.2,
+    "popularityRaw": 9.1,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",
+    "franchiseKey": "matrix",
+    "providerUrl": "https://www.imdb.com/title/tt0133093",
+    "availability": [
+      { "label": "Max", "type": "stream", "url": "https://www.justwatch.com/us/pelicula/the-matrix" },
+      { "label": "4K Blu-ray", "type": "buy", "url": "https://www.amazon.com/s?k=The+Matrix+4K" }
+    ]
+  },
+  {
+    "id": "ckmovie0012",
+    "source": "mock",
+    "sourceId": "mock-movie-whiplash",
+    "type": "movie",
+    "title": "Whiplash",
+    "year": 2014,
+    "genres": ["Drama", "Music"],
+    "synopsis": "Un baterista de jazz enfrenta el brutal perfeccionismo de su profesor para alcanzar la grandeza.",
+    "popularity": 80.4,
+    "popularityRaw": 8.0,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/oPxnRhyAIzJKGUEdSiwTJQBa3NM.jpg",
+    "franchiseKey": "whiplash",
+    "providerUrl": "https://www.imdb.com/title/tt2582802",
+    "availability": [
+      { "label": "Starz", "type": "stream", "url": "https://www.justwatch.com/us/pelicula/whiplash" },
+      { "label": "Blu-ray", "type": "buy", "url": "https://www.amazon.com/s?k=Whiplash+Blu-ray" }
+    ]
+  },
+  {
+    "id": "cktvs0001",
+    "source": "mock",
+    "sourceId": "mock-tv-breaking-bad",
+    "type": "tv",
+    "title": "Breaking Bad",
+    "year": 2008,
+    "genres": ["Crime", "Drama", "Thriller"],
+    "synopsis": "Un profesor de química se convierte en fabricante de metanfetamina tras un diagnóstico terminal.",
+    "popularity": 95.2,
+    "popularityRaw": 9.6,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/ggFHVNu6YYI5L9pCfOacjizRGt.jpg",
+    "franchiseKey": "breaking bad",
+    "providerUrl": "https://www.imdb.com/title/tt0903747",
+    "availability": [
+      { "label": "Netflix", "type": "stream", "url": "https://www.justwatch.com/us/serie/breaking-bad" },
+      { "label": "Blu-ray", "type": "buy", "url": "https://www.amazon.com/s?k=Breaking+Bad+Blu-ray" }
+    ]
+  },
+  {
+    "id": "cktvs0002",
+    "source": "mock",
+    "sourceId": "mock-tv-better-call-saul",
+    "type": "tv",
+    "title": "Better Call Saul",
+    "year": 2015,
+    "genres": ["Crime", "Drama"],
+    "synopsis": "El origen del abogado Jimmy McGill mientras se transforma en Saul Goodman, defensor de criminales.",
+    "popularity": 86.9,
+    "popularityRaw": 8.6,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/fC2HDm5t0kHl7mTmQgML3kUrT3g.jpg",
+    "franchiseKey": "better call saul",
+    "providerUrl": "https://www.imdb.com/title/tt3032476",
+    "availability": [
+      { "label": "Netflix", "type": "stream", "url": "https://www.justwatch.com/us/serie/better-call-saul" },
+      { "label": "Blu-ray", "type": "buy", "url": "https://www.amazon.com/s?k=Better+Call+Saul+Blu-ray" }
+    ]
+  },
+  {
+    "id": "cktvs0003",
+    "source": "mock",
+    "sourceId": "mock-tv-dark",
+    "type": "tv",
+    "title": "Dark",
+    "year": 2017,
+    "genres": ["Science Fiction", "Mystery", "Drama"],
+    "synopsis": "Un pueblo alemán se enfrenta a bucles temporales y secretos familiares cuando desaparecen varios niños.",
+    "popularity": 82.3,
+    "popularityRaw": 8.2,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/apbrbWs8M9lyOpJYU5WXrpFbk1Z.jpg",
+    "franchiseKey": "dark",
+    "providerUrl": "https://www.netflix.com/title/80100172",
+    "availability": [
+      { "label": "Netflix", "type": "stream", "url": "https://www.justwatch.com/us/serie/dark" }
+    ]
+  },
+  {
+    "id": "cktvs0004",
+    "source": "mock",
+    "sourceId": "mock-tv-the-expanse",
+    "type": "tv",
+    "title": "The Expanse",
+    "year": 2015,
+    "genres": ["Science Fiction", "Drama", "Mystery"],
+    "synopsis": "Una conspiración interestelar amenaza la paz entre la Tierra, Marte y el Cinturón.",
+    "popularity": 75.4,
+    "popularityRaw": 7.5,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/qSgBzXdu6QwzjXsdKkj2hdi2c4z.jpg",
+    "franchiseKey": "expanse",
+    "providerUrl": "https://www.imdb.com/title/tt3230854",
+    "availability": [
+      { "label": "Prime Video", "type": "stream", "url": "https://www.justwatch.com/us/serie/the-expanse" }
+    ]
+  },
+  {
+    "id": "cktvs0005",
+    "source": "mock",
+    "sourceId": "mock-tv-arcane",
+    "type": "tv",
+    "title": "Arcane",
+    "year": 2021,
+    "genres": ["Animation", "Fantasy", "Action"],
+    "synopsis": "Dos hermanas luchan en lados opuestos de una guerra entre Piltover y Zaun.",
+    "popularity": 83.8,
+    "popularityRaw": 8.4,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/xdYdhHl0F1X1J8FG7HOkh9aAh7X.jpg",
+    "franchiseKey": "arcane",
+    "providerUrl": "https://www.netflix.com/title/81435684",
+    "availability": [
+      { "label": "Netflix", "type": "stream", "url": "https://www.justwatch.com/us/serie/arcane" }
+    ]
+  },
+  {
+    "id": "cktvs0006",
+    "source": "mock",
+    "sourceId": "mock-tv-the-crown",
+    "type": "tv",
+    "title": "The Crown",
+    "year": 2016,
+    "genres": ["Drama", "Historical"],
+    "synopsis": "Crónica de la vida de la reina Isabel II y los eventos políticos y personales que marcaron su reinado.",
+    "popularity": 70.1,
+    "popularityRaw": 7.0,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/zU0htwkhNvBQdVSIKB9s6hgVeFK.jpg",
+    "franchiseKey": "crown",
+    "providerUrl": "https://www.netflix.com/title/80025678",
+    "availability": [
+      { "label": "Netflix", "type": "stream", "url": "https://www.justwatch.com/us/serie/the-crown" }
+    ]
+  },
+  {
+    "id": "cktvs0007",
+    "source": "mock",
+    "sourceId": "mock-tv-true-detective",
+    "type": "tv",
+    "title": "True Detective",
+    "year": 2014,
+    "genres": ["Crime", "Mystery", "Drama"],
+    "synopsis": "Investigadores enfrentan casos oscuros en diferentes líneas temporales y escenarios de Estados Unidos.",
+    "popularity": 76.6,
+    "popularityRaw": 7.7,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/zSFSXAw0KyqO1SxO07gFW6ZjwhC.jpg",
+    "franchiseKey": "true detective",
+    "providerUrl": "https://www.hbo.com/true-detective",
+    "availability": [
+      { "label": "Max", "type": "stream", "url": "https://www.justwatch.com/us/serie/true-detective" }
+    ]
+  },
+  {
+    "id": "cktvs0008",
+    "source": "mock",
+    "sourceId": "mock-tv-the-mandalorian",
+    "type": "tv",
+    "title": "The Mandalorian",
+    "year": 2019,
+    "genres": ["Science Fiction", "Adventure", "Action"],
+    "synopsis": "Un cazarrecompensas mandaloriano protege a un misterioso niño en los confines de la galaxia.",
+    "popularity": 78.9,
+    "popularityRaw": 7.9,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/sWgBv7LV2PRoQgkxwlibdGXKz1S.jpg",
+    "franchiseKey": "mandalorian",
+    "providerUrl": "https://www.disneyplus.com/series/the-mandalorian/3jLIGMDYINqD",
+    "availability": [
+      { "label": "Disney+", "type": "stream", "url": "https://www.justwatch.com/us/serie/the-mandalorian" }
+    ]
+  },
+  {
+    "id": "cktvs0009",
+    "source": "mock",
+    "sourceId": "mock-tv-bojack-horseman",
+    "type": "tv",
+    "title": "BoJack Horseman",
+    "year": 2014,
+    "genres": ["Animation", "Comedy", "Drama"],
+    "synopsis": "Un actor fracasado busca redención en Hollywood mientras lucha con su adicción y depresión.",
+    "popularity": 74.8,
+    "popularityRaw": 7.5,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/pB2dfSaaXVK7Yx1aQWQbrwT0aZM.jpg",
+    "franchiseKey": "bojack horseman",
+    "providerUrl": "https://www.netflix.com/title/70300800",
+    "availability": [
+      { "label": "Netflix", "type": "stream", "url": "https://www.justwatch.com/us/serie/bojack-horseman" }
+    ]
+  },
+  {
+    "id": "cktvs0010",
+    "source": "mock",
+    "sourceId": "mock-tv-cherobyl",
+    "type": "tv",
+    "title": "Chernobyl",
+    "year": 2019,
+    "genres": ["Drama", "Historical"],
+    "synopsis": "Recreación detallada del desastre nuclear de 1986 y los héroes que arriesgaron sus vidas para contenerlo.",
+    "popularity": 85.9,
+    "popularityRaw": 8.5,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/hlLXt2tOPT6RRnjiUmoxyG1LTFi.jpg",
+    "franchiseKey": "chernobyl",
+    "providerUrl": "https://www.hbo.com/chernobyl",
+    "availability": [
+      { "label": "Max", "type": "stream", "url": "https://www.justwatch.com/us/serie/chernobyl" }
+    ]
+  },
+  {
+    "id": "ckanime0001",
+    "source": "mock",
+    "sourceId": "mock-anime-aot",
+    "type": "anime",
+    "title": "Attack on Titan",
+    "year": 2013,
+    "genres": ["Action", "Dark Fantasy", "Drama"],
+    "synopsis": "La humanidad lucha contra titanes gigantes mientras descubre conspiraciones sobre su origen.",
+    "popularity": 93.1,
+    "popularityRaw": 9.3,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/hpU2cHC9tk90hswCFEpf5AtbqoL.jpg",
+    "franchiseKey": "attack on titan",
+    "providerUrl": "https://anilist.co/anime/16498",
+    "availability": [
+      { "label": "Crunchyroll", "type": "stream", "url": "https://www.justwatch.com/us/anime/shingeki-no-kyojin" },
+      { "label": "Blu-ray Funimation", "type": "buy", "url": "https://www.amazon.com/s?k=Attack+on+Titan+Blu-ray" }
+    ]
+  },
+  {
+    "id": "ckanime0002",
+    "source": "mock",
+    "sourceId": "mock-anime-fmab",
+    "type": "anime",
+    "title": "Fullmetal Alchemist: Brotherhood",
+    "year": 2009,
+    "genres": ["Adventure", "Fantasy", "Drama"],
+    "synopsis": "Dos hermanos alquimistas buscan la piedra filosofal para recuperar sus cuerpos tras un ritual fallido.",
+    "popularity": 91.7,
+    "popularityRaw": 9.2,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/4y4r3SeZEuntc2G2j6yjtcQ7tNg.jpg",
+    "franchiseKey": "fullmetal alchemist",
+    "providerUrl": "https://anilist.co/anime/5114",
+    "availability": [
+      { "label": "Crunchyroll", "type": "stream", "url": "https://www.justwatch.com/us/anime/fullmetal-alchemist-brotherhood" }
+    ]
+  },
+  {
+    "id": "ckanime0003",
+    "source": "mock",
+    "sourceId": "mock-anime-demon-slayer",
+    "type": "anime",
+    "title": "Demon Slayer",
+    "year": 2019,
+    "genres": ["Action", "Fantasy", "Adventure"],
+    "synopsis": "Tanjiro se convierte en cazador de demonios tras la masacre de su familia.",
+    "popularity": 89.4,
+    "popularityRaw": 8.9,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/xUfRZu2mi8jH6SzQEJGP6tjBuYj.jpg",
+    "franchiseKey": "demon slayer",
+    "providerUrl": "https://anilist.co/anime/101922",
+    "availability": [
+      { "label": "Crunchyroll", "type": "stream", "url": "https://www.justwatch.com/us/anime/demon-slayer-kimetsu-no-yaiba" }
+    ]
+  },
+  {
+    "id": "ckanime0004",
+    "source": "mock",
+    "sourceId": "mock-anime-jujutsu-kaisen",
+    "type": "anime",
+    "title": "Jujutsu Kaisen",
+    "year": 2020,
+    "genres": ["Action", "Dark Fantasy", "Supernatural"],
+    "synopsis": "Un estudiante alberga una maldición poderosa y se une a una escuela que combate espíritus malignos.",
+    "popularity": 87.8,
+    "popularityRaw": 8.8,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/3ly2RZrC0XgGJ5WcNQWh6X96LB8.jpg",
+    "franchiseKey": "jujutsu kaisen",
+    "providerUrl": "https://anilist.co/anime/117057",
+    "availability": [
+      { "label": "Crunchyroll", "type": "stream", "url": "https://www.justwatch.com/us/anime/jujutsu-kaisen" }
+    ]
+  },
+  {
+    "id": "ckanime0005",
+    "source": "mock",
+    "sourceId": "mock-anime-cowboy-bebop",
+    "type": "anime",
+    "title": "Cowboy Bebop",
+    "year": 1998,
+    "genres": ["Science Fiction", "Neo-noir", "Adventure"],
+    "synopsis": "Cazarrecompensas viajan por el espacio en busca de fugitivos mientras enfrentan su pasado.",
+    "popularity": 84.6,
+    "popularityRaw": 8.5,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/7szd4E2lqFJPPIOpu6PvxI6jElG.jpg",
+    "franchiseKey": "cowboy bebop",
+    "providerUrl": "https://anilist.co/anime/1",
+    "availability": [
+      { "label": "Crunchyroll", "type": "stream", "url": "https://www.justwatch.com/us/anime/cowboy-bebop" }
+    ]
+  },
+  {
+    "id": "ckanime0006",
+    "source": "mock",
+    "sourceId": "mock-anime-evangelion",
+    "type": "anime",
+    "title": "Neon Genesis Evangelion",
+    "year": 1995,
+    "genres": ["Science Fiction", "Psychological", "Drama"],
+    "synopsis": "Adolescentes pilotan mechas gigantes para luchar contra seres misteriosos llamados Ángeles.",
+    "popularity": 83.5,
+    "popularityRaw": 8.3,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/5YtOQUbbxMnmG1L7M1FgZqSEYxL.jpg",
+    "franchiseKey": "neon genesis evangelion",
+    "providerUrl": "https://anilist.co/anime/30",
+    "availability": [
+      { "label": "Netflix", "type": "stream", "url": "https://www.justwatch.com/us/anime/neon-genesis-evangelion" }
+    ]
+  },
+  {
+    "id": "ckanime0007",
+    "source": "mock",
+    "sourceId": "mock-anime-haikyuu",
+    "type": "anime",
+    "title": "Haikyuu!!",
+    "year": 2014,
+    "genres": ["Sports", "Coming-of-Age", "Comedy"],
+    "synopsis": "Un adolescente bajo sueña con dominar el voleibol y lidera a su equipo a nuevas alturas.",
+    "popularity": 80.9,
+    "popularityRaw": 8.1,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/jypeeQ5pZS2GXw0ENEyexG5BPLI.jpg",
+    "franchiseKey": "haikyuu",
+    "providerUrl": "https://anilist.co/anime/20464",
+    "availability": [
+      { "label": "Crunchyroll", "type": "stream", "url": "https://www.justwatch.com/us/anime/haikyu" }
+    ]
+  },
+  {
+    "id": "ckanime0008",
+    "source": "mock",
+    "sourceId": "mock-anime-mob-psycho",
+    "type": "anime",
+    "title": "Mob Psycho 100",
+    "year": 2016,
+    "genres": ["Action", "Comedy", "Supernatural"],
+    "synopsis": "Un joven psíquico intenta vivir una vida normal mientras controla sus poderes abrumadores.",
+    "popularity": 78.6,
+    "popularityRaw": 7.9,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/8QnbDpWuq3fZ9JqInMp9J0buw0C.jpg",
+    "franchiseKey": "mob psycho",
+    "providerUrl": "https://anilist.co/anime/21507",
+    "availability": [
+      { "label": "Crunchyroll", "type": "stream", "url": "https://www.justwatch.com/us/anime/mob-psycho-100" }
+    ]
+  },
+  {
+    "id": "ckanime0009",
+    "source": "mock",
+    "sourceId": "mock-anime-death-note",
+    "type": "anime",
+    "title": "Death Note",
+    "year": 2006,
+    "genres": ["Thriller", "Psychological", "Mystery"],
+    "synopsis": "Un estudiante encuentra un cuaderno capaz de matar y lo usa para reescribir el mundo a su visión.",
+    "popularity": 90.3,
+    "popularityRaw": 9.0,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/gZmlM8eK9gF2QgFyxTKYrf5OCOG.jpg",
+    "franchiseKey": "death note",
+    "providerUrl": "https://anilist.co/anime/1535",
+    "availability": [
+      { "label": "Netflix", "type": "stream", "url": "https://www.justwatch.com/us/anime/death-note" }
+    ]
+  },
+  {
+    "id": "ckanime0010",
+    "source": "mock",
+    "sourceId": "mock-anime-violet-evergarden",
+    "type": "anime",
+    "title": "Violet Evergarden",
+    "year": 2018,
+    "genres": ["Drama", "Slice of Life", "Fantasy"],
+    "synopsis": "Una exsoldado aprende a comprender las emociones mientras escribe cartas para otras personas.",
+    "popularity": 77.2,
+    "popularityRaw": 7.7,
+    "posterUrl": "https://image.tmdb.org/t/p/w500/hNKMNFpYFLA88qgLYsQdwPj48Jo.jpg",
+    "franchiseKey": "violet evergarden",
+    "providerUrl": "https://anilist.co/anime/21827",
+    "availability": [
+      { "label": "Netflix", "type": "stream", "url": "https://www.justwatch.com/us/anime/violet-evergarden" }
+    ]
+  },
+  {
+    "id": "ckbook0001",
+    "source": "mock",
+    "sourceId": "mock-book-dune",
+    "type": "book",
+    "title": "Dune",
+    "year": 1965,
+    "genres": ["Science Fiction", "Adventure", "Political"],
+    "synopsis": "Paul Atreides lidera una revolución en Arrakis, el planeta desértico donde se produce la especia más valiosa.",
+    "popularity": 88.7,
+    "popularityRaw": 4.7,
+    "posterUrl": "https://images-na.ssl-images-amazon.com/images/I/91pR9wKJ3zL.jpg",
+    "franchiseKey": "dune",
+    "providerUrl": "https://www.goodreads.com/book/show/234225.Dune",
+    "availability": [
+      { "label": "Amazon Libros", "type": "buy", "url": "https://www.amazon.com/s?k=Dune+book" },
+      { "label": "Audiolibro Audible", "type": "buy", "url": "https://www.audible.com/search?keywords=Dune" }
+    ]
+  },
+  {
+    "id": "ckbook0002",
+    "source": "mock",
+    "sourceId": "mock-book-dune-messiah",
+    "type": "book",
+    "title": "Dune Messiah",
+    "year": 1969,
+    "genres": ["Science Fiction", "Political", "Adventure"],
+    "synopsis": "Paul enfrenta las consecuencias de ser un mesías galáctico y las conspiraciones que amenazan su reinado.",
+    "popularity": 74.5,
+    "popularityRaw": 3.9,
+    "posterUrl": "https://images-na.ssl-images-amazon.com/images/I/81r0zPOeapL.jpg",
+    "franchiseKey": "dune messiah",
+    "providerUrl": "https://www.goodreads.com/book/show/44492285-dune-messiah",
+    "availability": [
+      { "label": "Amazon Libros", "type": "buy", "url": "https://www.amazon.com/s?k=Dune+Messiah" }
+    ]
+  },
+  {
+    "id": "ckbook0003",
+    "source": "mock",
+    "sourceId": "mock-book-hobbit",
+    "type": "book",
+    "title": "The Hobbit",
+    "year": 1937,
+    "genres": ["Fantasy", "Adventure"],
+    "synopsis": "Bilbo Bolsón abandona la Comarca para ayudar a un grupo de enanos a recuperar su hogar.",
+    "popularity": 86.0,
+    "popularityRaw": 4.4,
+    "posterUrl": "https://images-na.ssl-images-amazon.com/images/I/91b0C2YNSrL.jpg",
+    "franchiseKey": "hobbit",
+    "providerUrl": "https://www.goodreads.com/book/show/5907.The_Hobbit",
+    "availability": [
+      { "label": "Amazon Libros", "type": "buy", "url": "https://www.amazon.com/s?k=The+Hobbit+book" }
+    ]
+  },
+  {
+    "id": "ckbook0004",
+    "source": "mock",
+    "sourceId": "mock-book-lotr",
+    "type": "book",
+    "title": "The Lord of the Rings",
+    "year": 1954,
+    "genres": ["Fantasy", "Adventure", "Epic"],
+    "synopsis": "Frodo Bolsón emprende un viaje para destruir un anillo que podría esclavizar a toda la Tierra Media.",
+    "popularity": 91.1,
+    "popularityRaw": 4.9,
+    "posterUrl": "https://images-na.ssl-images-amazon.com/images/I/71a+G0hIUIL.jpg",
+    "franchiseKey": "lord of the rings",
+    "providerUrl": "https://www.goodreads.com/series/66175-the-lord-of-the-rings",
+    "availability": [
+      { "label": "Amazon Libros", "type": "buy", "url": "https://www.amazon.com/s?k=The+Lord+of+the+Rings+book" }
+    ]
+  },
+  {
+    "id": "ckbook0005",
+    "source": "mock",
+    "sourceId": "mock-book-foundation",
+    "type": "book",
+    "title": "Foundation",
+    "year": 1951,
+    "genres": ["Science Fiction", "Political", "Space Opera"],
+    "synopsis": "Hari Seldon crea la psicohistoria para salvar el conocimiento humano durante un inminente colapso galáctico.",
+    "popularity": 80.2,
+    "popularityRaw": 4.1,
+    "posterUrl": "https://images-na.ssl-images-amazon.com/images/I/81OthjkJBuL.jpg",
+    "franchiseKey": "foundation",
+    "providerUrl": "https://www.goodreads.com/book/show/29579.Foundation",
+    "availability": [
+      { "label": "Amazon Libros", "type": "buy", "url": "https://www.amazon.com/s?k=Foundation+Isaac+Asimov" }
+    ]
+  },
+  {
+    "id": "ckbook0006",
+    "source": "mock",
+    "sourceId": "mock-book-name-of-the-wind",
+    "type": "book",
+    "title": "The Name of the Wind",
+    "year": 2007,
+    "genres": ["Fantasy", "Coming-of-Age"],
+    "synopsis": "Kvothe relata su vida desde sus orígenes humildes hasta convertirse en un mago legendario.",
+    "popularity": 79.4,
+    "popularityRaw": 4.0,
+    "posterUrl": "https://images-na.ssl-images-amazon.com/images/I/91bYsX41DVL.jpg",
+    "franchiseKey": "name of the wind",
+    "providerUrl": "https://www.goodreads.com/book/show/186074.The_Name_of_the_Wind",
+    "availability": [
+      { "label": "Amazon Libros", "type": "buy", "url": "https://www.amazon.com/s?k=The+Name+of+the+Wind" }
+    ]
+  },
+  {
+    "id": "ckbook0007",
+    "source": "mock",
+    "sourceId": "mock-book-1984",
+    "type": "book",
+    "title": "1984",
+    "year": 1949,
+    "genres": ["Dystopian", "Political", "Science Fiction"],
+    "synopsis": "Winston Smith desafía un régimen totalitario que vigila y controla cada aspecto de la vida.",
+    "popularity": 88.3,
+    "popularityRaw": 4.6,
+    "posterUrl": "https://images-na.ssl-images-amazon.com/images/I/71kxa1-0AfL.jpg",
+    "franchiseKey": "1984",
+    "providerUrl": "https://www.goodreads.com/book/show/40961427-1984",
+    "availability": [
+      { "label": "Amazon Libros", "type": "buy", "url": "https://www.amazon.com/s?k=1984+George+Orwell" }
+    ]
+  },
+  {
+    "id": "ckbook0008",
+    "source": "mock",
+    "sourceId": "mock-book-brave-new-world",
+    "type": "book",
+    "title": "Brave New World",
+    "year": 1932,
+    "genres": ["Dystopian", "Science Fiction"],
+    "synopsis": "Una sociedad futurista mantiene la estabilidad a través de ingeniería social y condicionamiento químico.",
+    "popularity": 77.9,
+    "popularityRaw": 3.8,
+    "posterUrl": "https://images-na.ssl-images-amazon.com/images/I/81vpsIs58WL.jpg",
+    "franchiseKey": "brave new world",
+    "providerUrl": "https://www.goodreads.com/book/show/5129.Brave_New_World",
+    "availability": [
+      { "label": "Amazon Libros", "type": "buy", "url": "https://www.amazon.com/s?k=Brave+New+World+book" }
+    ]
+  },
+  {
+    "id": "ckbook0009",
+    "source": "mock",
+    "sourceId": "mock-book-left-hand",
+    "type": "book",
+    "title": "The Left Hand of Darkness",
+    "year": 1969,
+    "genres": ["Science Fiction", "Political", "Speculative"],
+    "synopsis": "Un enviado humano intenta forjar alianzas en un planeta donde los habitantes cambian de género.",
+    "popularity": 72.1,
+    "popularityRaw": 3.6,
+    "posterUrl": "https://images-na.ssl-images-amazon.com/images/I/81yqzS8bxLL.jpg",
+    "franchiseKey": "left hand of darkness",
+    "providerUrl": "https://www.goodreads.com/book/show/18423.The_Left_Hand_of_Darkness",
+    "availability": [
+      { "label": "Amazon Libros", "type": "buy", "url": "https://www.amazon.com/s?k=The+Left+Hand+of+Darkness" }
+    ]
+  },
+  {
+    "id": "ckbook0010",
+    "source": "mock",
+    "sourceId": "mock-book-project-hail-mary",
+    "type": "book",
+    "title": "Project Hail Mary",
+    "year": 2021,
+    "genres": ["Science Fiction", "Adventure"],
+    "synopsis": "Un científico despierta solo en una nave espacial y debe salvar a la Tierra con ayuda inesperada.",
+    "popularity": 83.2,
+    "popularityRaw": 4.2,
+    "posterUrl": "https://images-na.ssl-images-amazon.com/images/I/91Sls1oP9uL.jpg",
+    "franchiseKey": "project hail mary",
+    "providerUrl": "https://www.goodreads.com/book/show/54493401-project-hail-mary",
+    "availability": [
+      { "label": "Amazon Libros", "type": "buy", "url": "https://www.amazon.com/s?k=Project+Hail+Mary" },
+      { "label": "Audiolibro Audible", "type": "buy", "url": "https://www.audible.com/search?keywords=Project+Hail+Mary" }
+    ]
+  }
+]
+
