@@ -6,6 +6,7 @@
     "postinstall": "prisma generate",
     "dev": "cross-env NEXT_DISABLE_ESLINT=1 next dev",
     "build": "cross-env NEXT_DISABLE_ESLINT=1 next build",
+    "vercel-build": "prisma migrate deploy && cross-env NEXT_DISABLE_ESLINT=1 next build",
     "start": "next start",
     "lint": "echo \"ESLint disabled\"",
     "typecheck": "tsc --noEmit",
@@ -19,7 +20,8 @@
     "ingest:expand": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/ingest-expand.ts",
     "popularity:renormalize": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/renormalize-popularity.ts",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev"
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy"
   },
   "dependencies": {
     "@headlessui/react": "^2.1.7",
