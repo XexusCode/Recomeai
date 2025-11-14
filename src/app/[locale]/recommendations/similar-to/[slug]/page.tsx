@@ -1,10 +1,10 @@
 import { cache } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { RecommendationCard } from "@/components/RecommendationCard";
+import { SafeImage } from "@/components/SafeImage";
 import { env } from "@/env";
 import { normalizeProviderLabel } from "@/lib/availability";
 import { decodeSlug, encodeSlug } from "@/lib/slug";
@@ -262,11 +262,15 @@ export default async function SimilarPage({ params }: SimilarPageProps) {
 
       <section className="grid gap-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-lg sm:p-10 lg:grid-cols-[280px_1fr] lg:gap-12 dark:border-slate-800 dark:bg-slate-900">
         <figure className="relative mx-auto h-80 w-56 overflow-hidden rounded-2xl bg-slate-100 shadow-lg dark:bg-slate-800">
-          {anchor.posterUrl ? (
-            <Image src={anchor.posterUrl} alt={anchor.title} fill className="object-cover" sizes="224px" />
-          ) : (
-            <div className="flex h-full items-center justify-center text-sm text-slate-400">No poster available</div>
-          )}
+          <SafeImage
+            src={anchor.posterUrl}
+            alt={anchor.title}
+            fill
+            className="object-cover"
+            sizes="224px"
+            priority
+            fallback={<div className="flex h-full items-center justify-center text-sm text-slate-400">No poster available</div>}
+          />
         </figure>
         <article className="space-y-4 text-slate-700 dark:text-slate-200">
           <div className="space-y-2">

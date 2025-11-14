@@ -2,7 +2,7 @@ import { Prisma, type Source } from "@prisma/client";
 
 import { getEmbeddings } from "@/server/embeddings";
 import { prisma } from "@/server/db/client";
-import { searchProviders } from "@/server/providers/registry";
+import { searchProviders, getProvider } from "@/server/providers/registry";
 import { ProviderItem, ProviderSearchOptions, RecommendationPayload } from "@/lib/types";
 import { RecommendationFilters } from "@/server/recommendations/retrieve";
 
@@ -16,24 +16,18 @@ export async function resolveSeed(
   query: string,
   filters: RecommendationFilters,
 ): Promise<SeedResolution> {
-  console.log(`[Seed] Resolving seed for query: "${query}" with filters:`, JSON.stringify(filters));
-  
   const local = await findLocalSeed(query, filters);
   if (local) {
-    console.log(`[Seed] Found local seed: "${local.anchor?.title}" [${local.anchor?.id}]`);
     return local;
   }
-  console.log(`[Seed] No local seed found, trying providers`);
 
   const providerItem = await resolveFromProviders(query, filters);
   if (!providerItem) {
-    console.log(`[Seed] No provider item found, using query embedding`);
     const embeddings = getEmbeddings();
     const [vector] = await embeddings.embed([query]);
     return { embedding: vector ?? [], anchor: null, providerFallback: null };
   }
 
-  console.log(`[Seed] Found provider item: "${providerItem.title}" (${providerItem.type}) [${providerItem.id}]`);
   const embeddings = getEmbeddings();
   const text = buildEmbeddingText(providerItem);
   const [vector] = await embeddings.embed([text]);
@@ -62,9 +56,25 @@ async function findLocalSeed(
   for (let index = 1; index < clauses.length; index += 1) {
     where = Prisma.sql`${where} AND ${clauses[index]}`;
   }
-  const row = await prisma.$queryRaw<{ embedding: string; id: string } | null>(Prisma.sql`
+  const row = await prisma.$queryRaw<{
+    embedding: string;
+    id: string;
+    sourceId: string;
+    title: string;
+    type: string;
+    year: number | null;
+    genres: string[];
+    synopsis: string | null;
+    posterUrl: string | null;
+    popularity: number;
+    providerUrl: string | null;
+    availability: unknown;
+    franchiseKey: string | null;
+    source: string;
+  } | null>(Prisma.sql`
     SELECT
       i.id,
+      i."sourceId",
       i.embedding::text AS embedding,
       i.title,
       i.type,
@@ -82,26 +92,68 @@ async function findLocalSeed(
     ORDER BY similarity(i.title, ${query}) DESC
     LIMIT 1
   `);
-  if (!row) {
+  
+  // $queryRaw returns an array, so we need to take the first element
+  const result = Array.isArray(row) ? row[0] : row;
+  if (!result) {
     return null;
   }
-  const embedding = parseVector(row.embedding);
-  const anchor: RecommendationPayload = {
-    id: row.id,
-    title: (row as any).title,
-    type: (row as any).type,
-    year: (row as any).year,
-    genres: (row as any).genres ?? [],
-    synopsis: (row as any).synopsis,
-    posterUrl: (row as any).posterUrl,
-    popularity: (row as any).popularity ?? 0,
-    providerUrl: (row as any).providerUrl,
-    availability: ((row as any).availability ?? []) as RecommendationPayload["availability"],
-    franchiseKey: (row as any).franchiseKey ?? null,
-    source: (row as any).source,
+  
+  const embedding = parseVector(result.embedding);
+  let anchor: RecommendationPayload = {
+    id: result.id,
+    title: result.title,
+    type: result.type as RecommendationPayload["type"],
+    year: result.year,
+    genres: result.genres ?? [],
+    synopsis: result.synopsis,
+    posterUrl: result.posterUrl,
+    popularity: result.popularity ?? 0,
+    providerUrl: result.providerUrl,
+    availability: (result.availability ?? []) as RecommendationPayload["availability"],
+    franchiseKey: result.franchiseKey ?? null,
+    source: result.source as Source,
     reason: undefined,
     score: 1,
   };
+
+  // Always enrich TMDb anchors to ensure we have the correct posterUrl
+  // TMDb URLs can become stale or the image might not exist
+  if (result.source === "tmdb" && result.sourceId) {
+    const provider = getProvider("tmdb");
+    if (provider && typeof provider.fetchById === "function") {
+      try {
+        // For TMDb, we need format "movie:123" or "tv:123"
+        const fetchId = anchor.type
+          ? `${anchor.type === "anime" ? "tv" : anchor.type}:${result.sourceId}`
+          : `movie:${result.sourceId}`;
+        const enriched = await provider.fetchById(fetchId);
+        if (enriched?.posterUrl && !isMalformedPosterUrl(enriched.posterUrl)) {
+          anchor.posterUrl = enriched.posterUrl;
+        } else if (enriched?.posterUrl) {
+          // Still use it if it's the only option
+          anchor.posterUrl = enriched.posterUrl;
+        }
+      } catch (error) {
+        // Keep existing posterUrl on error
+      }
+    }
+  } else if (!anchor.posterUrl && result.source && result.sourceId) {
+    // For non-TMDb sources, only enrich if posterUrl is missing
+    const provider = getProvider(result.source as ProviderItem["source"]);
+    if (provider && typeof provider.fetchById === "function") {
+      try {
+        const fetchId = result.sourceId;
+        const enriched = await provider.fetchById(fetchId);
+        if (enriched?.posterUrl && !isMalformedPosterUrl(enriched.posterUrl)) {
+          anchor.posterUrl = enriched.posterUrl;
+        }
+      } catch (error) {
+        // Silently fail
+      }
+    }
+  }
+
   return { embedding, anchor };
 }
 
@@ -173,5 +225,24 @@ function parseVector(raw: string | null | undefined): number[] {
     .split(/[\s,]+/)
     .map((value) => Number.parseFloat(value))
     .filter((value) => Number.isFinite(value));
+}
+
+function isMalformedPosterUrl(url: string | null | undefined): boolean {
+  if (!url) {
+    return true;
+  }
+  // Check for TMDb URLs with malformed filenames
+  if (url.includes("image.tmdb.org")) {
+    // Validate URL format - should be https://image.tmdb.org/t/p/w500/filename.jpg
+    const match = url.match(/^https:\/\/image\.tmdb\.org\/t\/p\/w\d+\/([^/]+)\.(jpg|jpeg|png|webp)$/i);
+    if (!match) {
+      return true; // Invalid format
+    }
+    const filename = match[1];
+    // TMDb filenames are alphanumeric, typically 8-27 characters
+    // Only reject if it's clearly malformed (contains invalid chars or is too short)
+    return filename.length < 8 || !/^[a-zA-Z0-9]+$/.test(filename);
+  }
+  return false;
 }
 

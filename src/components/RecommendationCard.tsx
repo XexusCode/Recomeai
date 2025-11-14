@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useRef } from "react";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 
 import { AvailabilityLogo } from "@/components/AvailabilityLogo";
+import { SafeImage } from "@/components/SafeImage";
 import { normalizeProviderLabel } from "@/lib/availability";
 import type { AvailabilityLink, RecommendationPayload } from "@/lib/types";
 import { format, getStrings, getTypeLabel } from "@/i18n/strings";
@@ -119,17 +119,14 @@ export function RecommendationCard({ item, placeholder = false, locale }: Recomm
         dangerouslySetInnerHTML={{ __html: structuredData }}
       />
       <div className="relative h-60 w-full bg-slate-100 dark:bg-slate-800">
-        {item.posterUrl ? (
-          <Image
-            src={item.posterUrl}
-            alt={item.title}
-            fill
-            sizes="(max-width:768px) 100vw, 33vw"
-            className="object-cover"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center text-sm text-slate-400">{strings.common.card.noPoster}</div>
-        )}
+        <SafeImage
+          src={item.posterUrl}
+          alt={item.title}
+          fill
+          sizes="(max-width:768px) 100vw, 33vw"
+          className="object-cover"
+          fallback={<div className="flex h-full items-center justify-center text-sm text-slate-400">{strings.common.card.noPoster}</div>}
+        />
         <span className="absolute left-4 top-4 rounded-full bg-slate-900/80 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-white">
           {typeBadge}
         </span>

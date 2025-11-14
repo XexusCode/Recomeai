@@ -19,6 +19,7 @@
     "seed:mock": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/seed-mock.ts",
     "ingest:expand": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/ingest-expand.ts",
     "popularity:renormalize": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/renormalize-popularity.ts",
+    "fix:posters": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/fix-posters.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy"

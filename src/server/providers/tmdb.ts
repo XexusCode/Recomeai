@@ -227,7 +227,9 @@ export class TmdbProvider implements ContentProvider {
       synopsis: result.overview ?? null,
       year,
       genres: [],
-      posterUrl: result.poster_path ? `${TMDB_IMAGE_BASE}${result.poster_path}` : null,
+      posterUrl: result.poster_path
+        ? `${TMDB_IMAGE_BASE}${result.poster_path.startsWith("/") ? result.poster_path : `/${result.poster_path}`}`
+        : null,
       popularityRaw: result.popularity ?? null,
       providerUrl: this.buildProviderUrl(mediaType, result.id),
       availability: buildDefaultAvailability(title, detectedType, defaultLocale),
@@ -258,7 +260,9 @@ export class TmdbProvider implements ContentProvider {
       synopsis: result.overview ?? null,
       year,
       genres,
-      posterUrl: result.poster_path ? `${TMDB_IMAGE_BASE}${result.poster_path}` : null,
+      posterUrl: result.poster_path
+        ? `${TMDB_IMAGE_BASE}${result.poster_path.startsWith("/") ? result.poster_path : `/${result.poster_path}`}`
+        : null,
       popularityRaw: result.popularity ?? null,
       providerUrl: result.homepage ?? this.buildProviderUrl(mediaType, result.id),
       availability: buildDefaultAvailability(title, detectedType, defaultLocale),

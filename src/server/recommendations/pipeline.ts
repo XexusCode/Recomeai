@@ -48,24 +48,14 @@ export async function buildRecommendations(
 
   const seed = await resolveSeed(request.query, baseFilters);
   
-  // Log seed resolution
-  if (seed.anchor) {
-    console.log(`[Recommendations] Seed found: "${seed.anchor.title}" (${seed.anchor.type}, ${seed.anchor.year ?? "N/A"}) [${seed.anchor.id}]`);
-  } else {
-    console.log(`[Recommendations] No seed found for query: "${request.query}"`);
-  }
-  console.log(`[Recommendations] Embedding dimension: ${seed.embedding.length}`);
-  
   let embedding = seed.embedding;
   if (!embedding?.length) {
-    console.log(`[Recommendations] Generating fallback embedding for query`);
     const fallbackEmbeddings = getEmbeddings();
     const [vector] = await fallbackEmbeddings.embed([request.query]);
     embedding = vector ?? [];
   }
 
   const relaxations = buildRelaxations(baseFilters);
-  console.log(`[Recommendations] Generated ${relaxations.length} filter relaxation(s)`);
   
   let finalItems: RecommendationPayload[] = [];
   let totalCandidates = 0;
@@ -73,60 +63,19 @@ export async function buildRecommendations(
 
   for (let relaxationIndex = 0; relaxationIndex < relaxations.length; relaxationIndex += 1) {
     const filters = relaxations[relaxationIndex];
-    console.log(`[Recommendations] Relaxation ${relaxationIndex + 1}/${relaxations.length}:`, JSON.stringify(filters));
     
     const retrieval = await retrieveCandidates(request.query, embedding, filters, 120);
     totalCandidates = Math.max(totalCandidates, retrieval.candidates.length);
-    console.log(`[Recommendations] Retrieved ${retrieval.candidates.length} candidates`);
     
     if (!retrieval.candidates.length) {
-      console.log(`[Recommendations] No candidates found, trying next relaxation`);
       appliedRelaxations += 1;
       continue;
     }
     
-    // Log top candidates before filtering
-    if (retrieval.candidates.length > 0) {
-      const top5 = retrieval.candidates.slice(0, 5);
-      console.log(`[Recommendations] Top 5 candidates (before filtering):`);
-      top5.forEach((candidate, index) => {
-        console.log(`  ${index + 1}. "${candidate.item.title}" (${candidate.item.type}) - fusedScore: ${candidate.fusedScore?.toFixed(4) ?? "N/A"}, ftsScore: ${candidate.ftsScore?.toFixed(4) ?? "N/A"}, vecScore: ${candidate.vectorScore?.toFixed(4) ?? "N/A"}`);
-      });
-      
-      // Check specifically for "The Flash" or similar items in ALL candidates
-      const flashCandidates = retrieval.candidates.filter((c) => 
-        c.item.title.toLowerCase().includes("flash")
-      );
-      if (flashCandidates.length > 0) {
-        console.log(`[Recommendations] Found ${flashCandidates.length} Flash-related items in retrieved candidates:`);
-        flashCandidates.forEach((candidate, index) => {
-          console.log(`  ${index + 1}. "${candidate.item.title}" (${candidate.item.type}, ${candidate.item.year ?? "N/A"}) - vecScore: ${candidate.vectorScore?.toFixed(4) ?? "N/A"}, fusedScore: ${candidate.fusedScore?.toFixed(4) ?? "N/A"}`);
-        });
-      } else {
-        console.log(`[Recommendations] ⚠️ No Flash-related items found in ${retrieval.candidates.length} retrieved candidates`);
-      }
-      
-      // Also check for high vecScore items (even if below 0.4 threshold)
-      const highVecAll = retrieval.candidates
-        .filter((c) => (c.vectorScore ?? 0) > 0.3)
-        .sort((a, b) => (b.vectorScore ?? 0) - (a.vectorScore ?? 0));
-      if (highVecAll.length > 0) {
-        console.log(`[Recommendations] Top ${Math.min(10, highVecAll.length)} candidates by vecScore (>0.3):`);
-        highVecAll.slice(0, 10).forEach((candidate, index) => {
-          console.log(`  ${index + 1}. "${candidate.item.title}" (${candidate.item.type}) - vecScore: ${candidate.vectorScore?.toFixed(4)}, fusedScore: ${candidate.fusedScore?.toFixed(4)}`);
-        });
-      }
-    }
-    
     // Exclude seed item from recommendations
     let filteredCandidates = retrieval.candidates;
-    const beforeSeedExclusion = filteredCandidates.length;
     if (seed.anchor?.id) {
       filteredCandidates = filteredCandidates.filter((candidate) => candidate.id !== seed.anchor!.id);
-      const excluded = beforeSeedExclusion - filteredCandidates.length;
-      if (excluded > 0) {
-        console.log(`[Recommendations] Excluded ${excluded} seed item(s) from candidates`);
-      }
     }
     
     // Prioritize candidates with good vector similarity, even if fusedScore is low
@@ -160,15 +109,10 @@ export async function buildRecommendations(
           ...highVectorCandidates.slice(0, poolTarget),
           ...otherCandidates.slice(0, Math.max(0, poolTarget - highVectorCandidates.length)),
         ].slice(0, poolTarget);
-        console.log(`[Recommendations] Kept top ${filteredCandidates.length} candidates (${highVectorCandidates.length} with vectorScore > 0.3)`);
-      } else {
-        console.log(`[Recommendations] Keeping all ${beforeScoreFilter} candidates (no filtering needed)`);
       }
     }
-    console.log(`[Recommendations] ${filteredCandidates.length} candidates after filtering`);
     
     if (!filteredCandidates.length) {
-      console.log(`[Recommendations] No candidates after filtering, trying next relaxation`);
       appliedRelaxations += 1;
       continue;
     }
@@ -176,7 +120,6 @@ export async function buildRecommendations(
     const reranked = await rerankCandidates(request.query, filteredCandidates, {
       locale,
     });
-    console.log(`[Recommendations] Reranked ${reranked.length} candidates`);
     
     // Sort reranked by combined relevance score (vectorScore is most important for semantic similarity)
     // This ensures the most relevant items are at the top
@@ -196,48 +139,6 @@ export async function buildRecommendations(
       return bCombined - aCombined;
     });
     
-    // Log top reranked candidates
-    if (sortedReranked.length > 0) {
-      const top5Reranked = sortedReranked.slice(0, 5);
-      console.log(`[Recommendations] Top 5 candidates (after reranking and relevance sorting):`);
-      top5Reranked.forEach((candidate, index) => {
-        const vec = candidate.vectorScore ?? 0;
-        const rerank = candidate.rerankScore ?? 0;
-        const fused = candidate.fusedScore ?? 0;
-        const combined = (vec * 0.7) + (rerank * 0.2) + (fused * 0.1);
-        console.log(`  ${index + 1}. "${candidate.item.title}" (${candidate.item.type}) - combined: ${combined.toFixed(4)} (vec: ${vec.toFixed(4)}, rerank: ${rerank.toFixed(4)}, fused: ${fused.toFixed(4)})`);
-      });
-      
-      // Log high vectorScore candidates (check if "The Flash" or similar items are present)
-      const highVectorCandidates = sortedReranked.filter((c) => (c.vectorScore ?? 0) > 0.4);
-      if (highVectorCandidates.length > 0) {
-        console.log(`[Recommendations] Found ${highVectorCandidates.length} candidates with vecScore > 0.4 (high semantic relevance):`);
-        highVectorCandidates.slice(0, 10).forEach((candidate, index) => {
-          const vec = candidate.vectorScore ?? 0;
-          const rerank = candidate.rerankScore ?? 0;
-          const fused = candidate.fusedScore ?? 0;
-          const combined = (vec * 0.7) + (rerank * 0.2) + (fused * 0.1);
-          console.log(`  ${index + 1}. "${candidate.item.title}" (${candidate.item.type}) - combined: ${combined.toFixed(4)}, vecScore: ${vec.toFixed(4)}, fusedScore: ${fused.toFixed(4)}`);
-        });
-      }
-      
-      // Check specifically for "The Flash" or similar semantic matches
-      const flashCandidates = sortedReranked.filter((c) => 
-        c.item.title.toLowerCase().includes("flash") || 
-        (c.vectorScore ?? 0) > 0.45
-      );
-      if (flashCandidates.length > 0) {
-        console.log(`[Recommendations] Found ${flashCandidates.length} Flash-related or very high vecScore candidates:`);
-        flashCandidates.forEach((candidate, index) => {
-          const vec = candidate.vectorScore ?? 0;
-          const rerank = candidate.rerankScore ?? 0;
-          const fused = candidate.fusedScore ?? 0;
-          const combined = (vec * 0.7) + (rerank * 0.2) + (fused * 0.1);
-          console.log(`  ${index + 1}. "${candidate.item.title}" (${candidate.item.type}, ${candidate.item.year ?? "N/A"}) - combined: ${combined.toFixed(4)}, vecScore: ${vec.toFixed(4)}`);
-        });
-      }
-    }
-    
     // Reserve top spots for high vectorScore items (very relevant semantically)
     // These items should appear even if MMR would filter them out
     // Exclude the seed item to avoid self-recommendation
@@ -256,13 +157,6 @@ export async function buildRecommendations(
       })
       .slice(0, highRelevanceCap);
     
-    console.log(`[Recommendations] Reserved ${highRelevanceItems.length} high-relevance items (vecScore >= ${highRelevanceThreshold}):`);
-    highRelevanceItems.forEach((candidate, index) => {
-      const vec = candidate.vectorScore ?? 0;
-      const combined = (vec * 0.7) + ((candidate.rerankScore ?? 0) * 0.2) + ((candidate.fusedScore ?? 0) * 0.1);
-      console.log(`  ${index + 1}. "${candidate.item.title}" (${candidate.item.type}) - vecScore: ${vec.toFixed(4)}, combined: ${combined.toFixed(4)}`);
-    });
-    
     const remainingForDiversity = sortedReranked.filter(
       (c) => {
         // Exclude high-relevance items
@@ -272,8 +166,6 @@ export async function buildRecommendations(
         return true;
       }
     );
-    
-    console.log(`[Recommendations] Reserved ${highRelevanceItems.length} high-relevance items (vecScore >= ${highRelevanceThreshold}), ${remainingForDiversity.length} remaining for diversity`);
     
     // Apply diversity to remaining items with very low lambda to prioritize relevance
     const diversifiedRemaining = remainingForDiversity.length > 0
@@ -299,42 +191,6 @@ export async function buildRecommendations(
     });
     
     const diversified = sortedCombined.slice(0, desired);
-    console.log(`[Recommendations] Applied diversity (lambda=0.3), selected ${diversified.length} items (${highRelevanceItems.length} high-relevance + ${diversifiedRemaining.length} diversified)`);
-    
-    // Log final diversified items with full scoring breakdown
-    if (diversified.length > 0) {
-      console.log(`[Recommendations] Final ${Math.min(diversified.length, desired)} recommendations (sorted by combined relevance):`);
-      diversified.slice(0, desired).forEach((candidate, index) => {
-        const vec = candidate.vectorScore ?? 0;
-        const rerank = candidate.rerankScore ?? 0;
-        const fused = candidate.fusedScore ?? 0;
-        const combined = (vec * 0.7) + (rerank * 0.2) + (fused * 0.1);
-        console.log(`  ${index + 1}. "${candidate.item.title}" (${candidate.item.type}, ${candidate.item.year ?? "N/A"}) - combined: ${combined.toFixed(4)} (vec: ${vec.toFixed(4)}, rerank: ${rerank.toFixed(4)}, fused: ${fused.toFixed(4)})`);
-      });
-      
-      // Check if "The Flash" or high vecScore items are in final recommendations
-      const highVecInFinal = diversified.filter((c) => (c.vectorScore ?? 0) > 0.35);
-      if (highVecInFinal.length > 0) {
-        console.log(`[Recommendations] ✓ ${highVecInFinal.length} high vecScore items (>0.35) in final recommendations`);
-      } else {
-        console.warn(`[Recommendations] ⚠️ WARNING: No high vecScore items (>0.35) in final recommendations! This may indicate a problem.`);
-      }
-      
-      // Check specifically for "The Flash" in final recommendations
-      const flashInFinal = diversified.filter((c) => 
-        c.item.title.toLowerCase().includes("flash")
-      );
-      if (flashInFinal.length > 0) {
-        console.log(`[Recommendations] ✓ Found Flash-related items in final recommendations:`);
-        flashInFinal.forEach((candidate, index) => {
-          const vec = candidate.vectorScore ?? 0;
-          const combined = (vec * 0.7) + ((candidate.rerankScore ?? 0) * 0.2) + ((candidate.fusedScore ?? 0) * 0.1);
-          console.log(`  "${candidate.item.title}" - combined: ${combined.toFixed(4)}, vecScore: ${vec.toFixed(4)}`);
-        });
-      } else {
-        console.warn(`[Recommendations] ⚠️ WARNING: No Flash-related items in final recommendations!`);
-      }
-    }
     
     const newItems = diversified.map((candidate) => {
       // Assign final score based on combined relevance
@@ -356,18 +212,14 @@ export async function buildRecommendations(
     // Always ensure at least 5 recommendations if we have candidates
     const minRequired = Math.min(MIN_REQUIRED_DEFAULT, desired);
     if (finalItems.length >= desired) {
-      console.log(`[Recommendations] Successfully generated ${finalItems.length} recommendations`);
       break;
     }
     
     if (finalItems.length >= minRequired) {
-      console.log(`[Recommendations] Generated ${finalItems.length} recommendations (minimum ${minRequired} met, continuing to reach ${desired})`);
       // Continue to try to get more if possible
       if (relaxationIndex === relaxations.length - 1) {
         break;
       }
-    } else {
-      console.log(`[Recommendations] Only ${finalItems.length}/${minRequired} recommendations, trying next relaxation`);
     }
     appliedRelaxations += 1;
   }
@@ -395,7 +247,6 @@ export async function buildRecommendations(
       .map((candidate) => candidate.item);
     
     finalItems = [...finalItems, ...topByScore];
-    console.log(`[Recommendations] Added ${topByScore.length} fallback candidates, total: ${finalItems.length}`);
   }
   
   // Ensure we have at least 5, but respect desired if it's greater
@@ -435,8 +286,6 @@ export async function buildRecommendations(
     }
   }
 
-  console.log(`[Recommendations] Pipeline complete: ${localizedItems.length} items, ${appliedRelaxations} relaxations, ${totalCandidates} total candidates`);
-  
   return {
     anchor: localizedAnchor,
     items: localizedItems,
@@ -624,7 +473,11 @@ async function hydrateLocalizations(items: RecommendationPayload[], locale: Loca
       return;
     }
     item.locale = isLocale(localization.locale) ? localization.locale : defaultLocale;
-    item.title = localization.title ?? item.title;
+    // Only update title if localization has a valid title (not empty or undefined)
+    if (localization.title && localization.title.trim()) {
+      item.title = localization.title;
+    }
+    // Preserve original title if localization title is missing/invalid
     if (localization.synopsis) {
       item.synopsis = localization.synopsis;
     }
