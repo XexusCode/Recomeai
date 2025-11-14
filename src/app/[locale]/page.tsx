@@ -736,10 +736,15 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
               )}
             </div>
             <div className="mt-6 grid gap-6 sm:grid-cols-2 sm:gap-8">
-              <div className="space-y-3">
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
-                  {strings.home.typeLabel}
-                </label>
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-1.5">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    {strings.home.typeLabel}
+                  </label>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400" title={strings.home.typeDescription}>
+                    ⓘ
+                  </span>
+                </div>
                 <TypeSegmentedControl
                   value={type}
                   onChange={(value) => {

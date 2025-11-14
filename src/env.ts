@@ -128,6 +128,10 @@ const envSchema = z.object({
   LLM_RERANK_API_KEY: z.string().optional(),
   AVAILABILITY_AFFILIATE_TAG: z.string().optional(),
   RERANK_ENABLED: booleanDefaultTrue,
+  NEXT_PUBLIC_GA_MEASUREMENT_ID: z
+    .string()
+    .optional()
+    .transform((val) => (val && val.trim().length > 0 ? val.trim() : undefined)),
   NODE_ENV: z
     .enum(["development", "production", "test"])
     .default(process.env.NODE_ENV === "test" ? "test" : "development"),

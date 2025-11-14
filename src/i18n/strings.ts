@@ -90,6 +90,7 @@ interface AppStrings {
     heroSubtitle: string;
     searchLabel: string;
     typeLabel: string;
+    typeDescription: string;
     yearRangeLabel: string;
     popularityLabel: string;
     selectedPosterAlt: string;
@@ -472,6 +473,7 @@ const STRINGS: Record<Locale, AppStrings> = {
         "Hybrid recommender with intelligent diversity. Search for a title and receive exactly ten relevant, diverse, and duplicate-free recommendations.",
       searchLabel: "Search title",
       typeLabel: "Content type",
+      typeDescription: "Filter recommendations by content type",
       yearRangeLabel: "Year range",
       popularityLabel: "Popularity",
       selectedPosterAlt: "Poster for {{title}}",
@@ -887,6 +889,7 @@ const STRINGS: Record<Locale, AppStrings> = {
         "Recomendador híbrido con diversidad inteligente. Busca un título y recibe exactamente diez propuestas relevantes, variadas y sin duplicados de franquicia.",
       searchLabel: "Buscar título",
       typeLabel: "Tipo de contenido",
+      typeDescription: "Filtra las recomendaciones por tipo de contenido",
       yearRangeLabel: "Rango de años",
       popularityLabel: "Popularidad",
       selectedPosterAlt: "Póster de {{title}}",
@@ -1302,6 +1305,7 @@ const STRINGS: Record<Locale, AppStrings> = {
         "Hybrider Empfehlungsdienst mit Vielfalt. Suche nach einem Titel und erhalte genau zehn relevante, abwechslungsreiche und franchisefreie Vorschläge.",
       searchLabel: "Titel suchen",
       typeLabel: "Inhaltstyp",
+      typeDescription: "Empfehlungen nach Inhaltstyp filtern",
       yearRangeLabel: "Erscheinungsjahre",
       popularityLabel: "Popularität",
       selectedPosterAlt: "Poster von {{title}}",
