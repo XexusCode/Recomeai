@@ -42,6 +42,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "*.anilist.co",
+        pathname: "/file/anilistcdn/media/**",
+      },
+      {
+        protocol: "https",
         hostname: "books.google.com",
         pathname: "/**",
       },

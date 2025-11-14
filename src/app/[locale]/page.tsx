@@ -602,7 +602,7 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
   return (
     <main
       id="main-content"
-      className="mx-auto flex min-h-screen max-w-7xl flex-col gap-12 px-4 pb-24 pt-8 sm:px-6 sm:pt-12 lg:px-8 lg:pt-16"
+      className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-10 px-3 pb-20 pt-6 sm:px-6 sm:pt-12 lg:px-8 lg:pt-16"
     >
       <script
         type="application/ld+json"
@@ -633,7 +633,7 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
         <div className="space-y-4 md:sticky md:top-4 md:z-40">
           <form
             onSubmit={handleSubmit}
-            className="rounded-3xl border border-white/40 bg-gradient-to-br from-white/95 via-slate-50/90 to-blue-50/70 p-4 shadow-[0_25px_85px_rgba(15,23,42,0.25)] backdrop-blur-lg dark:border-slate-800/70 dark:from-slate-950/95 dark:via-slate-900/80 dark:to-blue-950/40 sm:p-6"
+            className="rounded-3xl border border-white/40 bg-gradient-to-br from-white/95 via-slate-50/90 to-blue-50/70 p-4 shadow-[0_25px_85px_rgba(15,23,42,0.25)] backdrop-blur-lg max-sm:-mx-2 max-sm:rounded-[26px] max-sm:border-white/60 max-sm:bg-white/95 max-sm:shadow-none max-sm:backdrop-blur sm:p-6 dark:border-slate-800/70 dark:from-slate-950/95 dark:via-slate-900/80 dark:to-blue-950/40"
           >
             <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[2.2fr,1fr] lg:gap-8">
               <div className="space-y-4">

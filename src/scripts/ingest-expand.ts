@@ -1,7 +1,6 @@
 import "dotenv/config";
 
 import { randomUUID } from "crypto";
-
 import { Prisma } from "@prisma/client";
 
 import { requireDatabaseUrl } from "@/env";
@@ -17,27 +16,34 @@ import { TmdbProvider } from "@/server/providers/tmdb";
 import { GoogleBooksProvider } from "@/server/providers/googleBooks";
 import { AnilistProvider } from "@/server/providers/anilist";
 import { OmdbProvider } from "@/server/providers/omdb";
-import { MockProvider } from "@/server/providers/mock";
 import { defaultLocale, isLocale, locales, type Locale } from "@/i18n/config";
 
-interface CliOptions {
+export interface CliOptions {
   provider: string;
   query?: string;
   limit: number;
   type?: "movie" | "tv" | "anime" | "book" | "series" | "any";
   discover?: {
-    mediaType?: "movie" | "tv";
+    mediaType?: "movie" | "tv" | "anime" | "book";
     pages: number;
     year?: number;
     sortBy?: string;
     genre?: string;
     category?: string; // For Google Books
+    mode?: "trending" | "popular" | "seasonal";
+    season?: "WINTER" | "SPRING" | "SUMMER" | "FALL";
   };
+  skipExisting?: boolean;
 }
 
-async function main() {
+export interface RunIngestResult {
+  processed: number;
+  inserted: number;
+  skipped: number;
+}
+
+export async function runIngest(options: CliOptions): Promise<RunIngestResult> {
   requireDatabaseUrl();
-  const options = parseCli();
   const provider = getProvider(options.provider as any);
   if (!provider) {
     throw new Error(`Provider ${options.provider} is not enabled`);
@@ -46,11 +52,12 @@ async function main() {
   let results: ProviderItem[] = [];
   if (options.discover) {
     if (provider instanceof TmdbProvider) {
-      if (!options.discover.mediaType) {
+      const mediaType = options.discover.mediaType;
+      if (!mediaType || (mediaType !== "movie" && mediaType !== "tv")) {
         throw new Error("--discover requires --mediaType for tmdb provider");
       }
       results = await provider.discover({
-        mediaType: options.discover.mediaType,
+        mediaType,
         pages: options.discover.pages,
         sortBy: options.discover.sortBy,
         year: options.discover.year,
@@ -66,8 +73,19 @@ async function main() {
         pages: options.discover.pages,
         limit: options.limit,
       });
+    } else if (provider instanceof AnilistProvider) {
+      if (options.discover.mediaType && options.discover.mediaType !== "anime") {
+        throw new Error("--discover mediaType must be 'anime' for anilist provider");
+      }
+      results = await provider.discover({
+        mode: (options.discover.mode?.toUpperCase() as any) ?? "TRENDING",
+        pages: options.discover.pages,
+        perPage: options.limit,
+        season: options.discover.season,
+        year: options.discover.year,
+      });
     } else {
-      throw new Error("Discover mode is only supported for tmdb and googlebooks providers");
+      throw new Error("Discover mode is only supported for tmdb, anilist and googlebooks providers");
     }
   } else if (options.query) {
     results = await provider.search(options.query, { limit: options.limit, type: options.type });
@@ -82,7 +100,12 @@ async function main() {
 
   if (!results.length) {
     console.warn("No items returned by provider");
-    return;
+    await prisma.$disconnect();
+    return {
+      processed: 0,
+      inserted: 0,
+      skipped: 0,
+    };
   }
 
   // Always enrich items from discover (they come truncated from TMDb)
@@ -95,6 +118,8 @@ async function main() {
   const texts = items.map((item) => buildEmbeddingText(item.title, item.genres, item.synopsis));
   const vectors = await embeddings.embed(texts);
 
+  let inserted = 0;
+  let skipped = 0;
   for (let index = 0; index < items.length; index += 1) {
     const item = items[index];
     const vector = vectors[index] ?? [];
@@ -117,10 +142,21 @@ async function main() {
       : `'{}'::TEXT[]`;
     const genresArray = Prisma.raw(genresArrayLiteral);
 
-    // If type changed (e.g., from tv to anime), we need to delete the old record first
-    // because the ID changed but (source, sourceId) is the same
+    if (options.skipExisting) {
+      const existing = await prisma.item.findFirst({
+        where: {
+          source: itemSource as any,
+          sourceId,
+        },
+        select: { id: true, posterUrl: true },
+      });
+      if (existing && existing.posterUrl) {
+        skipped += 1;
+        continue;
+      }
+    }
+
     if (itemSource === "tmdb" && (itemType === "anime" || itemType === "tv")) {
-      // Check if there's an existing record with different type
       const existing = await prisma.$queryRaw<Array<{ id: string; type: string }>>`
         SELECT id, type::text FROM "Item"
         WHERE source = ${Prisma.raw(`'${itemSource.replace(/'/g, "''")}'::"Source"`)}
@@ -128,7 +164,6 @@ async function main() {
         LIMIT 1
       `;
       if (existing.length > 0 && existing[0].type !== itemType && existing[0].id !== itemId) {
-        // Type changed, delete old record with different ID
         await prisma.$executeRaw`
           DELETE FROM "Item"
           WHERE id = ${existing[0].id}
@@ -229,11 +264,20 @@ async function main() {
       `);
     }
 
+    inserted += 1;
     console.log(`Upserted ${item.title} [${itemSource}:${sourceId}]`);
   }
 
   await prisma.$disconnect();
-  console.log(`Ingested ${results.length} items from ${options.provider}`);
+  const summary = {
+    processed: results.length,
+    inserted,
+    skipped,
+  };
+  console.log(
+    `[Ingest] Completed ${options.provider} · processed ${summary.processed}, inserted ${summary.inserted}, skipped ${summary.skipped}`,
+  );
+  return summary;
 }
 
 function parseCli(): CliOptions {
@@ -300,6 +344,20 @@ function parseCli(): CliOptions {
         options.discover.category = value;
         index += 1;
         break;
+      case "mode":
+        if (!options.discover) {
+          throw new Error("--mode can only be used with --discover");
+        }
+        options.discover.mode = value as "trending" | "popular" | "seasonal";
+        index += 1;
+        break;
+      case "season":
+        if (!options.discover) {
+          throw new Error("--season can only be used with --discover");
+        }
+        options.discover.season = value?.toUpperCase() as "WINTER" | "SPRING" | "SUMMER" | "FALL";
+        index += 1;
+        break;
       case "sort":
       case "sortBy":
         if (!options.discover) {
@@ -308,6 +366,10 @@ function parseCli(): CliOptions {
         options.discover.sortBy = value;
         index += 1;
         break;
+      case "skip-existing":
+      case "skipExisting":
+        options.skipExisting = true;
+        break;
       default:
         break;
     }
@@ -315,8 +377,8 @@ function parseCli(): CliOptions {
   if (!options.provider) {
     throw new Error("--provider is required");
   }
-  if (options.discover && options.provider !== "tmdb" && options.provider !== "googlebooks") {
-    throw new Error("--discover is only supported for the tmdb and googlebooks providers");
+  if (options.discover && !["tmdb", "googlebooks", "anilist"].includes(options.provider)) {
+    throw new Error("--discover is only supported for the tmdb, anilist and googlebooks providers");
   }
   if (!options.query && !options.discover) {
     throw new Error("--query or --discover must be provided");
@@ -356,40 +418,50 @@ async function enrichResults(results: ProviderItem[], provider: ContentProvider,
   if (!hasFetchById(provider)) {
     return results;
   }
-  return Promise.all(
-    results.map(async (item) => {
-      if (!alwaysEnrich && !needsEnrichment(item)) {
-        return item;
-      }
-      const detailId = buildFetchId(item);
-      if (!detailId) {
-        return item;
-      }
-      try {
-        const detailed = await provider.fetchById(detailId);
-        if (detailed) {
-          let merged = mergeProviderItems(item, detailed);
-          if (hasFetchLocalizations(provider)) {
-            try {
-              const additional = await provider.fetchLocalizations(detailId, locales.filter((loc) => loc !== defaultLocale));
-              if (additional.length) {
-                merged = {
-                  ...merged,
-                  localizations: mergeLocalizationArrays(merged.localizations, additional),
-                };
-              }
-            } catch (error) {
-              console.warn(`Failed to fetch localized data for ${item.title} (${detailId})`, error);
-            }
-          }
-          return merged;
-        }
-      } catch (error) {
-        console.warn(`Failed to enrich ${item.title} (${detailId})`, error);
-      }
+
+  const enrichSingle = async (item: ProviderItem): Promise<ProviderItem> => {
+    if (!alwaysEnrich && !needsEnrichment(item)) {
       return item;
-    }),
-  );
+    }
+    const detailId = buildFetchId(item);
+    if (!detailId) {
+      return item;
+    }
+    try {
+      const detailed = await provider.fetchById(detailId);
+      if (detailed) {
+        let merged = mergeProviderItems(item, detailed);
+        if (hasFetchLocalizations(provider)) {
+          try {
+            const additional = await provider.fetchLocalizations(detailId, locales.filter((loc) => loc !== defaultLocale));
+            if (additional.length) {
+              merged = {
+                ...merged,
+                localizations: mergeLocalizationArrays(merged.localizations, additional),
+              };
+            }
+          } catch (error) {
+            console.warn(`Failed to fetch localized data for ${item.title} (${detailId})`, error);
+          }
+        }
+        return merged;
+      }
+    } catch (error) {
+      console.warn(`Failed to enrich ${item.title} (${detailId})`, error);
+    }
+    return item;
+  };
+
+  if (provider.name === "anilist") {
+    const enriched: ProviderItem[] = [];
+    for (const item of results) {
+      enriched.push(await enrichSingle(item));
+      await wait(300);
+    }
+    return enriched;
+  }
+
+  return Promise.all(results.map((item) => enrichSingle(item)));
 }
 
 function buildFetchId(item: ProviderItem): string | null {
@@ -515,8 +587,18 @@ function hasFetchLocalizations(
   return typeof provider.fetchLocalizations === "function";
 }
 
-main().catch((error) => {
-  console.error(error);
-  prisma.$disconnect().finally(() => process.exit(1));
-});
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
+async function main() {
+  const options = parseCli();
+  await runIngest(options);
+}
+
+if (require.main === module) {
+  main().catch((error) => {
+    console.error(error);
+    prisma.$disconnect().finally(() => process.exit(1));
+  });
+}

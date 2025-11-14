@@ -71,6 +71,40 @@ const queryById = `
   }
 `;
 
+const queryDiscover = `
+  query DiscoverAnime($page: Int!, $perPage: Int!, $sort: [MediaSort], $season: MediaSeason, $seasonYear: Int) {
+    Page(page: $page, perPage: $perPage) {
+      media(
+        type: ANIME
+        sort: $sort
+        season: $season
+        seasonYear: $seasonYear
+        status_in: [RELEASING, FINISHED]
+      ) {
+        id
+        title { english romaji }
+        startDate { year }
+        description(asHtml: false)
+        genres
+        coverImage { medium }
+        averageScore
+        popularity
+        siteUrl
+      }
+    }
+  }
+`;
+
+export type AniListDiscoverMode = "TRENDING" | "POPULAR" | "SEASONAL";
+
+interface DiscoverOptions {
+  mode?: AniListDiscoverMode;
+  pages?: number;
+  perPage?: number;
+  season?: "WINTER" | "SPRING" | "SUMMER" | "FALL";
+  year?: number;
+}
+
 export class AnilistProvider implements ContentProvider {
   readonly name = "anilist" as const;
 
@@ -96,6 +130,31 @@ export class AnilistProvider implements ContentProvider {
       return null;
     }
     return this.mapMedia(media);
+  }
+
+  async discover(options: DiscoverOptions = {}): Promise<ProviderItem[]> {
+    const pages = Math.max(1, Math.min(options.pages ?? 2, 5));
+    const perPage = Math.max(5, Math.min(options.perPage ?? 25, 50));
+    const sort = this.resolveSort(options.mode);
+    const results: ProviderItem[] = [];
+
+    for (let page = 1; page <= pages; page += 1) {
+      const payload = await this.executeGraphQL(queryDiscover, {
+        page,
+        perPage,
+        sort,
+        season: options.season ?? null,
+        seasonYear: options.year ?? null,
+      });
+      const media = payload.data?.Page?.media ?? [];
+      const mapped = media.map((item) => this.mapMedia(item)).filter((item): item is ProviderItem => Boolean(item));
+      results.push(...mapped);
+      if (mapped.length < perPage) {
+        break;
+      }
+    }
+
+    return results;
   }
 
   private async executeGraphQL(query: string, variables: Record<string, unknown>): Promise<AnilistResponse> {
@@ -147,6 +206,18 @@ export class AnilistProvider implements ContentProvider {
       availability: buildDefaultAvailability(title, "anime", defaultLocale),
       franchiseKey: computeFranchiseKey(title),
     };
+  }
+
+  private resolveSort(mode: AniListDiscoverMode = "TRENDING"): string[] {
+    switch (mode) {
+      case "POPULAR":
+        return ["POPULARITY_DESC"];
+      case "SEASONAL":
+        return ["SCORE_DESC", "POPULARITY_DESC"];
+      case "TRENDING":
+      default:
+        return ["TRENDING_DESC"];
+    }
   }
 }
 
