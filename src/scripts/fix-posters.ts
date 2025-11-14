@@ -7,7 +7,7 @@ import { getProvider } from "@/server/providers/registry";
 async function main() {
   requireDatabaseUrl();
 
-  // Find all TMDb items with potentially malformed poster URLs
+  // Find TMDb items missing a poster or with non-TMDb URLs
   const items = await prisma.$queryRaw<Array<{
     id: string;
     title: string;
@@ -18,9 +18,8 @@ async function main() {
     SELECT id, title, "sourceId", type, "posterUrl"
     FROM "Item"
     WHERE source = 'tmdb'
-      AND "posterUrl" IS NOT NULL
-      AND "posterUrl" LIKE '%image.tmdb.org%'
-    LIMIT 100
+      AND ("posterUrl" IS NULL OR "posterUrl" NOT LIKE 'https://image.tmdb.org%')
+    LIMIT 200
   `;
 
   console.log(`Found ${items.length} TMDb items to check`);
@@ -35,45 +34,24 @@ async function main() {
 
   for (const item of items) {
     try {
-      // Check if URL is malformed (too long filename or invalid format)
-      if (item.posterUrl) {
-        const urlMatch = item.posterUrl.match(/\/t\/p\/w\d+\/([^/]+)\.(jpg|png|webp)/i);
-        if (urlMatch) {
-          const filename = urlMatch[1];
-          // If filename is longer than 15 chars, it's likely malformed
-          if (filename.length > 15) {
-            console.log(`Fixing malformed poster URL for ${item.title}: ${filename.substring(0, 20)}...`);
-            
-            // Fetch fresh data from TMDb
-            const tmdbType = item.type === "anime" ? "tv" : item.type;
-            const fetchId = `${tmdbType}:${item.sourceId}`;
-            const enriched = await provider.fetchById(fetchId);
-            
-            if (enriched?.posterUrl) {
-              // Validate the new URL
-              const newUrlMatch = enriched.posterUrl.match(/\/t\/p\/w\d+\/([^/]+)\.(jpg|png|webp)/i);
-              if (newUrlMatch && newUrlMatch[1].length <= 15) {
-                await prisma.$executeRaw`
-                  UPDATE "Item"
-                  SET "posterUrl" = ${enriched.posterUrl}
-                  WHERE id = ${item.id}
-                `;
-                console.log(`  ✓ Fixed: ${enriched.posterUrl}`);
-                fixed++;
-              } else {
-                console.log(`  ✗ New URL also malformed: ${enriched.posterUrl}`);
-                failed++;
-              }
-            } else {
-              console.log(`  ✗ No poster URL from TMDb`);
-              failed++;
-            }
-            
-            // Small delay to avoid rate limiting
-            await new Promise((resolve) => setTimeout(resolve, 200));
-          }
-        }
+      const tmdbType = item.type === "anime" ? "tv" : item.type;
+      const fetchId = `${tmdbType}:${item.sourceId}`;
+      const enriched = await provider.fetchById(fetchId);
+
+      if (enriched?.posterUrl?.startsWith("https://image.tmdb.org")) {
+        await prisma.$executeRaw`
+          UPDATE "Item"
+          SET "posterUrl" = ${enriched.posterUrl}
+          WHERE id = ${item.id}
+        `;
+        console.log(`  ✓ Updated poster for ${item.title}`);
+        fixed++;
+      } else {
+        console.log(`  ✗ No valid poster for ${item.title}`);
+        failed++;
       }
+
+      await new Promise((resolve) => setTimeout(resolve, 200));
     } catch (error) {
       console.error(`Error fixing ${item.title}:`, error);
       failed++;

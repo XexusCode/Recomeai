@@ -633,7 +633,7 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
         <div className="space-y-4 md:sticky md:top-4 md:z-40">
           <form
             onSubmit={handleSubmit}
-            className="rounded-3xl border border-white/40 bg-gradient-to-br from-white/95 via-slate-50/90 to-blue-50/70 p-4 shadow-[0_25px_85px_rgba(15,23,42,0.25)] backdrop-blur-lg max-sm:-mx-4 max-sm:rounded-none max-sm:border-0 max-sm:bg-white max-sm:p-4 max-sm:shadow-none max-sm:backdrop-blur-none sm:p-6 dark:border-slate-800/70 dark:from-slate-950/95 dark:via-slate-900/80 dark:to-blue-950/40"
+            className="rounded-3xl border border-white/40 bg-gradient-to-br from-white/95 via-slate-50/90 to-blue-50/70 p-4 shadow-[0_25px_85px_rgba(15,23,42,0.25)] backdrop-blur-lg max-sm:-mx-6 max-sm:rounded-none max-sm:border-0 max-sm:bg-white max-sm:p-4 max-sm:shadow-none max-sm:backdrop-blur-none sm:p-6 dark:border-slate-800/70 dark:from-slate-950/95 dark:via-slate-900/80 dark:to-blue-950/40"
           >
             <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[2.2fr,1fr] lg:gap-8">
               <div className="space-y-4">
