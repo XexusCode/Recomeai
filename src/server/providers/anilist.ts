@@ -219,7 +219,8 @@ export class AnilistProvider implements ContentProvider {
       case "POPULAR":
         return ["POPULARITY_DESC"];
       case "SEASONAL":
-        return ["SCORE_DESC", "POPULARITY_DESC"];
+        // Use SCORE_DESC to get top rated anime
+        return ["SCORE_DESC"];
       case "TRENDING":
       default:
         return ["TRENDING_DESC"];

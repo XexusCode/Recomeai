@@ -28,6 +28,7 @@
     "explain:popularity": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/explain-popularity.ts",
     "ingest:sample": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/ingest-sample.ts",
     "ingest:sample-anime": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/ingest-sample-anime.ts",
+    "top:anime": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/top-anime.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy"
