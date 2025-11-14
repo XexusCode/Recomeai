@@ -16,6 +16,10 @@ interface AnilistMedia {
   };
   description?: string | null;
   genres?: string[] | null;
+  tags?: Array<{
+    name: string;
+    category?: string | null;
+  }> | null;
   coverImage?: {
     medium?: string | null;
     large?: string | null;
@@ -47,6 +51,10 @@ const querySearch = `
         startDate { year }
         description(asHtml: false)
         genres
+        tags {
+          name
+          category
+        }
         coverImage { medium large }
         averageScore
         popularity
@@ -64,6 +72,10 @@ const queryById = `
       startDate { year }
       description(asHtml: false)
       genres
+      tags {
+        name
+        category
+      }
       coverImage { medium large }
       averageScore
       popularity
@@ -87,6 +99,10 @@ const queryDiscover = `
         startDate { year }
         description(asHtml: false)
         genres
+        tags {
+          name
+          category
+        }
         coverImage { medium large }
         averageScore
         popularity
@@ -188,6 +204,10 @@ export class AnilistProvider implements ContentProvider {
     const titleLang = media.title?.english ? "english" : media.title?.romaji ? "romaji" : undefined;
     const year = media.startDate?.year ?? undefined;
     const genres = media.genres?.filter(Boolean) ?? [];
+    // Extract tags from AniList (prioritize THEME tags, but include all)
+    const tags = media.tags
+      ?.map((tag) => tag.name.toLowerCase().trim())
+      .filter(Boolean) ?? [];
     // Use averageScore (user rating 0-100) instead of popularity
     // averageScore represents actual user ratings, which is more meaningful
     // Only fallback to popularity if averageScore is not available
@@ -206,6 +226,7 @@ export class AnilistProvider implements ContentProvider {
       year,
       synopsis,
       genres,
+      tags: tags.length > 0 ? tags : undefined,
       posterUrl: media.coverImage?.large ?? media.coverImage?.medium ?? null,
       popularityRaw,
       providerUrl,

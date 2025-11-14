@@ -76,6 +76,19 @@ async function main() {
       ? `ARRAY[${genres.map((g) => `'${String(g).replace(/'/g, "''")}'`).join(",")}]::TEXT[]`
       : `'{}'::TEXT[]`;
     const genresArray = Prisma.raw(genresArrayLiteral);
+    
+    const creators = (item as any).creators ?? [];
+    const creatorsArrayLiteral = creators.length > 0
+      ? `ARRAY[${creators.map((c: string) => `'${String(c).replace(/'/g, "''")}'`).join(",")}]::TEXT[]`
+      : `'{}'::TEXT[]`;
+    const creatorsArray = Prisma.raw(creatorsArrayLiteral);
+    
+    const cast = (item as any).cast ?? [];
+    const castArrayLiteral = cast.length > 0
+      ? `ARRAY[${cast.map((c: string) => `'${String(c).replace(/'/g, "''")}'`).join(",")}]::TEXT[]`
+      : `'{}'::TEXT[]`;
+    const castArray = Prisma.raw(castArrayLiteral);
+    
     await prisma.$executeRaw(Prisma.sql`
       INSERT INTO "Item" (
         id,
@@ -87,6 +100,8 @@ async function main() {
         year,
         genres,
         synopsis,
+        creators,
+        cast,
         popularity,
         "popularityRaw",
         "posterUrl",
@@ -106,6 +121,8 @@ async function main() {
         ${item.year ?? null},
         ${genresArray},
         ${synopsis},
+        ${creatorsArray},
+        ${castArray},
         ${normalizedPopularity},
         ${item.popularityRaw ?? null},
         ${item.posterUrl ?? null},
@@ -122,6 +139,8 @@ async function main() {
         year = EXCLUDED.year,
         genres = EXCLUDED.genres,
         synopsis = EXCLUDED.synopsis,
+        creators = EXCLUDED.creators,
+        cast = EXCLUDED.cast,
         popularity = EXCLUDED.popularity,
         "popularityRaw" = EXCLUDED."popularityRaw",
         "posterUrl" = EXCLUDED."posterUrl",

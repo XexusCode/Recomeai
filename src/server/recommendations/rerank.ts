@@ -4,12 +4,24 @@ import { CandidateWithScores } from "@/lib/types";
 export interface RerankOptions {
   locale?: string;
   topK?: number;
+  anchor?: {
+    title: string;
+    synopsis?: string | null;
+    genres: string[];
+    creators?: string[];
+  } | null;
 }
 
 interface RerankContext {
   query: string;
   locale: string;
   topK: number;
+  anchor?: {
+    title: string;
+    synopsis?: string | null;
+    genres: string[];
+    creators?: string[];
+  } | null;
 }
 
 interface InternalReranker {
@@ -32,9 +44,14 @@ export async function rerankCandidates(
   }
 
   const locale = options.locale ?? "en";
-  const topK = Math.min(options.topK ?? 50, candidates.length);
+  const topK = Math.min(options.topK ?? 100, candidates.length); // Increased from 50 to 100
   const topCandidates = candidates.slice(0, topK);
-  const context: RerankContext = { query, locale, topK };
+  const context: RerankContext = { 
+    query, 
+    locale, 
+    topK,
+    anchor: options.anchor ?? null,
+  };
 
   const rerankers = getRerankers();
   if (!rerankers.length) {
@@ -61,6 +78,7 @@ class CohereReranker implements InternalReranker {
   constructor(private readonly apiKey: string) {}
 
   async rerank(context: RerankContext, candidates: CandidateWithScores[]): Promise<Map<string, number> | null> {
+    const enhancedQuery = buildEnhancedQuery(context.query, context.anchor);
     const response = await fetch("https://api.cohere.com/v1/rerank", {
       method: "POST",
       headers: {
@@ -68,12 +86,12 @@ class CohereReranker implements InternalReranker {
         Authorization: `Bearer ${this.apiKey}`,
       },
       body: JSON.stringify({
-        query: context.query,
+        query: enhancedQuery,
         top_n: context.topK,
         documents: candidates.map((candidate) => ({
           id: candidate.id,
           title: candidate.item.title,
-          text: buildDocumentText(candidate),
+          text: buildDocumentText(candidate, context.anchor),
           metadata: {
             type: candidate.item.type,
             year: candidate.item.year,
@@ -109,6 +127,7 @@ class LightweightHttpReranker implements InternalReranker {
   constructor(private readonly url: string, private readonly apiKey?: string) {}
 
   async rerank(context: RerankContext, candidates: CandidateWithScores[]): Promise<Map<string, number> | null> {
+    const enhancedQuery = buildEnhancedQuery(context.query, context.anchor);
     const response = await fetch(this.url, {
       method: "POST",
       headers: {
@@ -116,7 +135,7 @@ class LightweightHttpReranker implements InternalReranker {
         ...(this.apiKey ? { Authorization: `Bearer ${this.apiKey}` } : {}),
       },
       body: JSON.stringify({
-        query: context.query,
+        query: enhancedQuery,
         locale: context.locale,
         schema: {
           type: "object",
@@ -190,7 +209,7 @@ function applyScores(
   return enriched.sort((a, b) => (b.rerankScore ?? b.fusedScore) - (a.rerankScore ?? a.fusedScore));
 }
 
-function buildDocumentText(candidate: CandidateWithScores): string {
+function buildDocumentText(candidate: CandidateWithScores, anchor?: RerankContext["anchor"]): string {
   const segments = [candidate.item.title];
   if (candidate.item.genres.length) {
     segments.push(candidate.item.genres.join(", "));
@@ -198,7 +217,38 @@ function buildDocumentText(candidate: CandidateWithScores): string {
   if (candidate.item.synopsis) {
     segments.push(candidate.item.synopsis);
   }
+  if (candidate.item.creators && candidate.item.creators.length > 0) {
+    segments.push(`Creators: ${candidate.item.creators.join(", ")}`);
+  }
   return segments.join("\n");
+}
+
+function buildEnhancedQuery(query: string, anchor?: RerankContext["anchor"]): string {
+  if (!anchor) {
+    return query;
+  }
+  
+  // Build enhanced query with anchor context
+  const parts: string[] = [];
+  parts.push(`Similar to "${anchor.title}"`);
+  
+  if (anchor.synopsis) {
+    // Use first 100 chars of synopsis for context
+    const synopsisPreview = anchor.synopsis.substring(0, 100).replace(/\n/g, " ");
+    parts.push(`(${synopsisPreview}...)`);
+  }
+  
+  if (anchor.genres.length > 0) {
+    parts.push(`Genres: ${anchor.genres.slice(0, 3).join(", ")}`);
+  }
+  
+  if (anchor.creators && anchor.creators.length > 0) {
+    parts.push(`By: ${anchor.creators.slice(0, 2).join(", ")}`);
+  }
+  
+  parts.push("Find shows/movies with similar themes, creators, style, or narrative structure.");
+  
+  return parts.join(". ");
 }
 
 let cachedRerankers: InternalReranker[] | null = null;

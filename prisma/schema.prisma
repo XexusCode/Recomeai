@@ -31,12 +31,16 @@ model Item {
   titleNorm     Unsupported("tsvector")
   year          Int?
   genres        String[]
+  tags          String[]                    @default([])
   synopsis      String?
+  creators      String[]                    @default([])
+  cast          String[]                    @default([])
   popularity    Float                       @default(0)
   popularityRaw Float?
   posterUrl     String?
   franchiseKey  String?
   embedding     Unsupported("vector")?
+  synopsisEmbedding Unsupported("vector")?
   availability  Json?
   providerUrl   String?
   createdAt     DateTime                    @default(now())

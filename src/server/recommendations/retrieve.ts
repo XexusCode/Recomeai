@@ -126,7 +126,10 @@ interface Row {
   source: string;
   year: number | null;
   genres: string[];
+  tags: string[] | null;
   synopsis: string | null;
+  creators: string[] | null;
+  cast: string[] | null;
   posterUrl: string | null;
   popularity: number;
   providerUrl: string | null;
@@ -144,7 +147,10 @@ function mapRow(row: Row): RecommendationPayload {
     source: row.source as RecommendationPayload["source"],
     year: row.year,
     genres: row.genres ?? [],
+    tags: row.tags ?? undefined,
     synopsis: row.synopsis,
+    creators: row.creators ?? undefined,
+    cast: row.cast ?? undefined,
     posterUrl: row.posterUrl,
     popularity: row.popularity,
     providerUrl: row.providerUrl,
@@ -165,7 +171,10 @@ async function ftsSearch(query: string, filters: RecommendationFilters, limit: n
       i.source,
       i.year,
       i.genres,
+      i.tags,
       i.synopsis,
+      i.creators,
+      i.cast,
       i."posterUrl",
       i.popularity,
       i."providerUrl",
@@ -196,7 +205,10 @@ async function vectorSearch(embedding: number[], filters: RecommendationFilters,
       i.source,
       i.year,
       i.genres,
+      i.tags,
       i.synopsis,
+      i.creators,
+      i.cast,
       i."posterUrl",
       i.popularity,
       i."providerUrl",

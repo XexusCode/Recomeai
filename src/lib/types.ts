@@ -22,6 +22,9 @@ export interface ProviderItem {
   year?: number | null;
   synopsis?: string | null;
   genres?: string[];
+  tags?: string[]; // Keywords/tags for thematic matching
+  creators?: string[]; // Directors, creators, showrunners
+  cast?: string[]; // Top actors/actresses
   posterUrl?: string | null;
   popularityRaw?: number | null;
   voteCount?: number | null; // For TMDb: number of votes for vote_average
@@ -63,7 +66,10 @@ export interface RecommendationPayload {
   type: ItemType;
   year: number | null;
   genres: string[];
+  tags?: string[];
   synopsis: string | null;
+  creators?: string[];
+  cast?: string[];
   posterUrl: string | null;
   popularity: number;
   providerUrl: string | null;

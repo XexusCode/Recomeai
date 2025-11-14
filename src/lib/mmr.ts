@@ -83,7 +83,8 @@ export function mmrSelect(
         const genreSim = jaccardSimilarity(entry.genres, chosen.genres);
         const titleSim = cosineSimilarity(entry.titleVector, chosen.titleVector);
         const yearSim = yearSimilarity(entry.candidate.item.year, chosen.candidate.item.year);
-        const similarity = clamp(0.5 * genreSim + 0.3 * titleSim + 0.2 * yearSim);
+        // Reduced title similarity weight: genres 60%, title 15% (reduced from 30%), year 25%
+        const similarity = clamp(0.6 * genreSim + 0.15 * titleSim + 0.25 * yearSim);
         if (similarity > maxSimilarity) {
           maxSimilarity = similarity;
         }

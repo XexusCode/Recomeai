@@ -146,6 +146,8 @@ export class GoogleBooksProvider implements ContentProvider {
     const year = published ? Number.parseInt(published.slice(0, 4), 10) : undefined;
     const synopsis = item.volumeInfo?.description ?? null;
     const genres = item.volumeInfo?.categories ?? [];
+    // Use categories as tags (normalize to lowercase)
+    const tags = item.volumeInfo?.categories?.map((cat) => cat.toLowerCase().trim()).filter(Boolean) ?? [];
     const popularityRaw = item.volumeInfo?.averageRating ?? null;
     const providerUrl = item.volumeInfo?.infoLink ?? item.saleInfo?.buyLink ?? null;
     const availability = [
@@ -164,6 +166,7 @@ export class GoogleBooksProvider implements ContentProvider {
       year: Number.isFinite(year) ? year : undefined,
       synopsis,
       genres,
+      tags: tags.length > 0 ? tags : undefined,
       posterUrl: item.volumeInfo?.imageLinks?.thumbnail ?? null,
       popularityRaw,
       providerUrl,

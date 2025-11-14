@@ -65,6 +65,8 @@ async function findLocalSeed(
     year: number | null;
     genres: string[];
     synopsis: string | null;
+    creators: string[] | null;
+    cast: string[] | null;
     posterUrl: string | null;
     popularity: number;
     providerUrl: string | null;
@@ -80,7 +82,10 @@ async function findLocalSeed(
       i.type,
       i.year,
       i.genres,
+      i.tags,
       i.synopsis,
+      i.creators,
+      i.cast,
       i."posterUrl",
       i.popularity,
       i."providerUrl",
@@ -89,7 +94,7 @@ async function findLocalSeed(
       i.source
     FROM "Item" i
     WHERE ${where}
-    ORDER BY similarity(i.title, ${query}) DESC
+    ORDER BY similarity(i.title, ${query}) DESC, i.popularity DESC, i.year DESC NULLS LAST
     LIMIT 1
   `);
   
@@ -106,7 +111,10 @@ async function findLocalSeed(
     type: result.type as RecommendationPayload["type"],
     year: result.year,
     genres: result.genres ?? [],
+    tags: (result as { tags?: string[] | null }).tags ?? undefined,
     synopsis: result.synopsis,
+    creators: result.creators ?? undefined,
+    cast: result.cast ?? undefined,
     posterUrl: result.posterUrl,
     popularity: result.popularity ?? 0,
     providerUrl: result.providerUrl,

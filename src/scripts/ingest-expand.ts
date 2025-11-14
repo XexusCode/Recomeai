@@ -208,6 +208,24 @@ export async function runIngest(options: CliOptions): Promise<RunIngestResult> {
       }
     }
 
+    const creators = item.creators ?? [];
+    const creatorsArrayLiteral = creators.length > 0
+      ? `ARRAY[${creators.map((c) => `'${String(c).replace(/'/g, "''")}'`).join(",")}]::TEXT[]`
+      : `'{}'::TEXT[]`;
+    const creatorsArray = Prisma.raw(creatorsArrayLiteral);
+    
+    const cast = item.cast ?? [];
+    const castArrayLiteral = cast.length > 0
+      ? `ARRAY[${cast.map((c) => `'${String(c).replace(/'/g, "''")}'`).join(",")}]::TEXT[]`
+      : `'{}'::TEXT[]`;
+    const castArray = Prisma.raw(castArrayLiteral);
+    
+    const tags = item.tags ?? [];
+    const tagsArrayLiteral = tags.length > 0
+      ? `ARRAY[${tags.map((t) => `'${String(t).replace(/'/g, "''")}'`).join(",")}]::TEXT[]`
+      : `'{}'::TEXT[]`;
+    const tagsArray = Prisma.raw(tagsArrayLiteral);
+
     await prisma.$executeRaw(Prisma.sql`
       INSERT INTO "Item" (
         id,
@@ -218,7 +236,10 @@ export async function runIngest(options: CliOptions): Promise<RunIngestResult> {
         "titleNorm",
         year,
         genres,
+        tags,
         synopsis,
+        creators,
+        "cast",
         popularity,
         "popularityRaw",
         "posterUrl",
@@ -237,7 +258,10 @@ export async function runIngest(options: CliOptions): Promise<RunIngestResult> {
         ${Prisma.raw(`to_tsvector('english', '${escapedTsvectorInput}')`)},
         ${item.year ?? null},
         ${genresArray},
+        ${tagsArray},
         ${synopsis},
+        ${creatorsArray},
+        ${castArray},
         ${popularity[index] ?? 0},
         ${item.popularityRaw ?? null},
         ${item.posterUrl ?? null},
@@ -254,7 +278,10 @@ export async function runIngest(options: CliOptions): Promise<RunIngestResult> {
         "titleNorm" = EXCLUDED."titleNorm",
         year = EXCLUDED.year,
         genres = EXCLUDED.genres,
+        tags = EXCLUDED.tags,
         synopsis = EXCLUDED.synopsis,
+        creators = EXCLUDED.creators,
+        "cast" = EXCLUDED."cast",
         popularity = EXCLUDED.popularity,
         "popularityRaw" = EXCLUDED."popularityRaw",
         "posterUrl" = EXCLUDED."posterUrl",

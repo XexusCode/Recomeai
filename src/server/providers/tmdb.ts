@@ -39,6 +39,24 @@ interface TmdbSearchResponse {
   results?: TmdbSearchResult[];
 }
 
+interface TmdbCrewMember {
+  id: number;
+  name: string;
+  job?: string;
+  department?: string;
+}
+
+interface TmdbCastMember {
+  id: number;
+  name: string;
+  character?: string;
+}
+
+interface TmdbCreditsResponse {
+  crew?: TmdbCrewMember[];
+  cast?: TmdbCastMember[];
+}
+
 interface TmdbDetailResponse {
   id: number;
   title?: string;
@@ -56,6 +74,7 @@ interface TmdbDetailResponse {
   origin_country?: string[]; // For TV shows
   production_countries?: Array<{ iso_3166_1: string; name: string }>; // For movies
   original_language?: string;
+  created_by?: Array<{ id: number; name: string }>; // For TV shows
 }
 
 interface TmdbWatchProvidersResponse {
@@ -138,7 +157,14 @@ export class TmdbProvider implements ContentProvider {
       return null;
     }
     const baseDetail = detailResult.detail;
-    const item = this.mapDetail(baseDetail, tmdbType === "tv" ? "tv" : "movie");
+    
+    // Fetch credits to get creators/directors and cast
+    const credits = await this.fetchCreators(numericId, tmdbType === "tv" ? "tv" : "movie");
+    
+    // Fetch keywords/tags
+    const keywords = await this.fetchKeywords(numericId, tmdbType === "tv" ? "tv" : "movie");
+    
+    const item = this.mapDetail(baseDetail, tmdbType === "tv" ? "tv" : "movie", credits.creators, credits.cast, keywords);
     if (!item) {
       return null;
     }
@@ -245,13 +271,97 @@ export class TmdbProvider implements ContentProvider {
     };
   }
 
-  private mapDetail(result: TmdbDetailResponse, mediaType: TmdbMediaType): ProviderItem | null {
+  private async fetchKeywords(id: number, mediaType: TmdbMediaType): Promise<string[]> {
+    if (!env.TMDB_API_KEY) {
+      return [];
+    }
+    try {
+      const base = env.TMDB_API_BASE ?? "https://api.themoviedb.org/3";
+      const path = mediaType === "tv" ? `/tv/${id}/keywords` : `/movie/${id}/keywords`;
+      const url = new URL(`${base}${path}`);
+      url.searchParams.set("api_key", env.TMDB_API_KEY);
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        return [];
+      }
+      const data = (await response.json()) as { keywords?: Array<{ id: number; name: string }>; results?: Array<{ id: number; name: string }> };
+      // TMDb returns different structures for movies vs TV: movies use "keywords", TV uses "results"
+      const keywords = data.keywords ?? data.results ?? [];
+      return keywords.map((k) => k.name.toLowerCase().trim()).filter(Boolean);
+    } catch {
+      return [];
+    }
+  }
+
+  private async fetchCreators(id: number, mediaType: TmdbMediaType): Promise<{ creators: string[]; cast: string[] }> {
+    if (!env.TMDB_API_KEY) {
+      return { creators: [], cast: [] };
+    }
+    try {
+      const base = env.TMDB_API_BASE ?? "https://api.themoviedb.org/3";
+      const path = mediaType === "tv" ? `/tv/${id}/credits` : `/movie/${id}/credits`;
+      const url = new URL(`${base}${path}`);
+      url.searchParams.set("api_key", env.TMDB_API_KEY);
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        return { creators: [], cast: [] };
+      }
+      const credits = (await response.json()) as TmdbCreditsResponse;
+      
+      const creators: string[] = [];
+      
+      // For TV shows: get creators from created_by (from detail) and showrunners from crew
+      if (mediaType === "tv" && credits.crew) {
+        const showrunners = credits.crew
+          .filter((member) => member.job === "Executive Producer" || member.job === "Creator")
+          .map((member) => member.name);
+        creators.push(...showrunners);
+      }
+      
+      // For movies: get directors from crew
+      if (mediaType === "movie" && credits.crew) {
+        const directors = credits.crew
+          .filter((member) => member.job === "Director")
+          .map((member) => member.name);
+        creators.push(...directors);
+      }
+      
+      // Get top 3 cast members (by order, which usually indicates importance)
+      const cast: string[] = [];
+      if (credits.cast && credits.cast.length > 0) {
+        const topCast = credits.cast
+          .slice(0, 3)
+          .map((member) => member.name)
+          .filter(Boolean);
+        cast.push(...topCast);
+      }
+      
+      // Remove duplicates and return
+      return {
+        creators: Array.from(new Set(creators)),
+        cast: Array.from(new Set(cast)),
+      };
+    } catch {
+      return { creators: [], cast: [] };
+    }
+  }
+
+  private mapDetail(result: TmdbDetailResponse, mediaType: TmdbMediaType, creators: string[] = [], cast: string[] = [], tags: string[] = []): ProviderItem | null {
     const title = mediaType === "movie" ? result.title : result.name;
     if (!title) {
       return null;
     }
     const year = this.extractYear(mediaType === "movie" ? result.release_date : result.first_air_date);
     const genres = result.genres?.map((genre) => genre.name) ?? [];
+    
+    // Add created_by from detail response for TV shows
+    const allCreators = mediaType === "tv" && result.created_by
+      ? [...creators, ...result.created_by.map((c) => c.name)]
+      : creators;
+    const uniqueCreators = Array.from(new Set(allCreators));
+    
     // Detect anime based on genres and country of origin (for both movies and TV shows)
     // More strict detection: must have Animation genre AND be from Japan
     const isAnimation = genres.some((g) => {
@@ -274,13 +384,17 @@ export class TmdbProvider implements ContentProvider {
       synopsis: result.overview ?? null,
       year,
       genres,
+      tags: tags.length > 0 ? tags : undefined,
+      creators: uniqueCreators.length > 0 ? uniqueCreators : undefined,
+      cast: cast.length > 0 ? cast : undefined,
       posterUrl: result.poster_path
         ? `${TMDB_IMAGE_BASE}${result.poster_path.startsWith("/") ? result.poster_path : `/${result.poster_path}`}`
         : null,
       // Use vote_average (user rating 0-10) instead of popularity
-      // vote_average represents actual user ratings, which is more meaningful
+      // vote_average represents actual user rating, which is more meaningful
       // Only use popularity as fallback if vote_average is null/undefined (not if it's 0, as 0 is a valid rating)
       popularityRaw: result.vote_average != null ? result.vote_average : result.popularity ?? null,
+      voteCount: result.vote_count ?? null,
       providerUrl: result.homepage ?? this.buildProviderUrl(mediaType, result.id),
       availability: buildDefaultAvailability(title, detectedType, defaultLocale),
       franchiseKey: computeFranchiseKey(title),
@@ -412,7 +526,7 @@ export class TmdbProvider implements ContentProvider {
       if (!detail) {
         continue;
       }
-      const mapped = this.mapDetail(detail.detail, baseType);
+      const mapped = this.mapDetail(detail.detail, baseType, [], []);
       if (!mapped) {
         continue;
       }
