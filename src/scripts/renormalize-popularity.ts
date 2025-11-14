@@ -14,13 +14,14 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("Re-normalizing popularity based on global statistics...\n");
   
-  // Get all items with popularityRaw
+  // Get all items with popularityRaw and source
   const items = await prisma.$queryRaw<Array<{
     id: string;
     popularityRaw: number | null;
     synopsis: string | null;
+    source: string;
   }>>(Prisma.sql`
-    SELECT id, "popularityRaw", synopsis
+    SELECT id, "popularityRaw", synopsis, source::text
     FROM "Item"
     WHERE "popularityRaw" IS NOT NULL
     ORDER BY id;
@@ -34,7 +35,7 @@ async function main() {
     return;
   }
   
-  // Normalize using global statistics (all items at once)
+  // Normalize using provider-specific scaling
   const normalized = normalizePopularityBatch(items);
   
   console.log(`Normalized ${normalized.length} items`);

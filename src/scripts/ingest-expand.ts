@@ -113,7 +113,12 @@ export async function runIngest(options: CliOptions): Promise<RunIngestResult> {
   const shouldAlwaysEnrich = Boolean(options.discover || (provider.name === "tmdb" && options.query));
   const items = await enrichResults(results, provider, shouldAlwaysEnrich);
 
-  const popularity = normalizePopularityBatch(items);
+  // Add source to items for provider-specific normalization
+  const itemsWithSource = items.map((item) => ({
+    ...item,
+    source: item.source ?? "mock",
+  }));
+  const popularity = normalizePopularityBatch(itemsWithSource);
   const embeddings = getEmbeddings();
   const texts = items.map((item) => buildEmbeddingText(item.title, item.genres, item.synopsis));
   const vectors = await embeddings.embed(texts);
@@ -145,6 +150,12 @@ export async function runIngest(options: CliOptions): Promise<RunIngestResult> {
     if (!hasLatinCharacters(item.title)) {
       skipped += 1;
       console.warn(`[Ingest] Skipping non-Latin title: ${item.title}`);
+      continue;
+    }
+
+    if (!item.posterUrl || item.posterUrl.trim() === "") {
+      skipped += 1;
+      console.warn(`[Ingest] Skipping item without poster: ${item.title}`);
       continue;
     }
 
@@ -599,7 +610,14 @@ function wait(ms: number) {
 
 function hasLatinCharacters(value: string | null | undefined): boolean {
   if (!value) return false;
-  return /[A-Za-zÁÉÍÓÚÑáéíóúñ]/.test(value);
+  // Check if it has at least one Latin character
+  const hasLatin = /[A-Za-zÁÉÍÓÚÑáéíóúñÀÈÌÒÙàèìòùÂÊÎÔÛâêîôûÄËÏÖÜäëïöüÇç]/.test(value);
+  if (!hasLatin) return false;
+  // Check if it contains CJK (Chinese, Japanese, Korean) characters
+  // This includes Hiragana, Katakana, Kanji, Hangul, and Chinese characters
+  const hasCJK = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF\u3400-\u4DBF\uAC00-\uD7AF]/.test(value);
+  // If it has CJK characters, reject it (we only want translated titles)
+  return !hasCJK;
 }
 
 async function main() {

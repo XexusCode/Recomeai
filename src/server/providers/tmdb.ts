@@ -29,6 +29,8 @@ interface TmdbSearchResult {
   media_type?: "movie" | "tv" | string;
   genre_ids?: number[];
   popularity?: number;
+  vote_average?: number;
+  vote_count?: number;
   origin_country?: string[]; // For TV shows
   original_language?: string;
 }
@@ -47,6 +49,8 @@ interface TmdbDetailResponse {
   first_air_date?: string;
   genres?: Array<{ id: number; name: string }>;
   popularity?: number;
+  vote_average?: number;
+  vote_count?: number;
   homepage?: string | null;
   media_type?: "movie" | "tv";
   origin_country?: string[]; // For TV shows
@@ -212,10 +216,10 @@ export class TmdbProvider implements ContentProvider {
       return null;
     }
     const year = this.extractYear(mediaType === "movie" ? result.release_date : result.first_air_date);
-    // Detect anime: for TV shows, check if origin_country includes JP and has Animation genre
+    // Detect anime: for both movies and TV shows, check if origin_country includes JP and has Animation genre
     // Note: genre_ids 16 is Animation, but we don't have genre names in search results
     // So we'll rely on fetchById to properly detect anime
-    const detectedType = mediaType === "tv" && this.isAnime(result.genre_ids, result.origin_country, result.original_language)
+    const detectedType = this.isAnime(result.genre_ids, result.origin_country, result.original_language)
       ? "anime"
       : mediaType;
     return {
@@ -230,7 +234,9 @@ export class TmdbProvider implements ContentProvider {
       posterUrl: result.poster_path
         ? `${TMDB_IMAGE_BASE}${result.poster_path.startsWith("/") ? result.poster_path : `/${result.poster_path}`}`
         : null,
-      popularityRaw: result.popularity ?? null,
+      // Use vote_average (user rating 0-10) instead of popularity
+      // vote_average represents actual user ratings, which is more meaningful
+      popularityRaw: result.vote_average != null && result.vote_average > 0 ? result.vote_average : result.popularity ?? null,
       providerUrl: this.buildProviderUrl(mediaType, result.id),
       availability: buildDefaultAvailability(title, detectedType, defaultLocale),
       franchiseKey: computeFranchiseKey(title),
@@ -244,13 +250,14 @@ export class TmdbProvider implements ContentProvider {
     }
     const year = this.extractYear(mediaType === "movie" ? result.release_date : result.first_air_date);
     const genres = result.genres?.map((genre) => genre.name) ?? [];
-    // Detect anime based on genres and country of origin
+    // Detect anime based on genres and country of origin (for both movies and TV shows)
     const isAnimation = genres.some((g) => g.toLowerCase() === "animation" || g.toLowerCase() === "anime");
     const originCountries = mediaType === "tv" 
       ? result.origin_country ?? []
       : result.production_countries?.map((c) => c.iso_3166_1) ?? [];
     const isJapanese = originCountries.includes("JP") || result.original_language === "ja";
-    const detectedType = mediaType === "tv" && isAnimation && isJapanese ? "anime" : mediaType;
+    // Detect anime for both movies and TV shows
+    const detectedType = isAnimation && isJapanese ? "anime" : mediaType;
     return {
       id: `tmdb-${detectedType}:${result.id}`,
       source: "tmdb",
@@ -263,7 +270,9 @@ export class TmdbProvider implements ContentProvider {
       posterUrl: result.poster_path
         ? `${TMDB_IMAGE_BASE}${result.poster_path.startsWith("/") ? result.poster_path : `/${result.poster_path}`}`
         : null,
-      popularityRaw: result.popularity ?? null,
+      // Use vote_average (user rating 0-10) instead of popularity
+      // vote_average represents actual user ratings, which is more meaningful
+      popularityRaw: result.vote_average != null && result.vote_average > 0 ? result.vote_average : result.popularity ?? null,
       providerUrl: result.homepage ?? this.buildProviderUrl(mediaType, result.id),
       availability: buildDefaultAvailability(title, detectedType, defaultLocale),
       franchiseKey: computeFranchiseKey(title),
@@ -364,16 +373,17 @@ export class TmdbProvider implements ContentProvider {
   }
 
   /**
-   * Detects if a TV show is anime based on genre IDs and country of origin.
+   * Detects if a movie or TV show is anime based on genre IDs and country/language of origin.
    * Genre ID 16 = Animation in TMDb.
    * This is a best-effort detection for search results (which don't have full genre names).
+   * For movies, originCountry may be undefined, so we rely on originalLanguage.
    */
   private isAnime(genreIds?: number[], originCountry?: string[], originalLanguage?: string): boolean {
     if (!genreIds || !genreIds.includes(16)) {
       // No Animation genre
       return false;
     }
-    // Check if it's from Japan
+    // Check if it's from Japan (originCountry for TV shows, originalLanguage for both)
     const isJapanese = originCountry?.includes("JP") || originalLanguage === "ja";
     return isJapanese;
   }

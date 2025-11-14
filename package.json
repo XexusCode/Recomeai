@@ -22,6 +22,12 @@
     "popularity:renormalize": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/renormalize-popularity.ts",
     "fix:posters": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/fix-posters.ts",
     "db:clear": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/clear-database.ts",
+    "analyze:item": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/analyze-item.ts",
+    "analyze:multiple": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/analyze-multiple-items.ts",
+    "check:tmdb": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/check-tmdb-ranges.ts",
+    "explain:popularity": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/explain-popularity.ts",
+    "ingest:sample": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/ingest-sample.ts",
+    "ingest:sample-anime": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/ingest-sample-anime.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy"

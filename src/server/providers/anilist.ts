@@ -188,7 +188,12 @@ export class AnilistProvider implements ContentProvider {
     const titleLang = media.title?.english ? "english" : media.title?.romaji ? "romaji" : undefined;
     const year = media.startDate?.year ?? undefined;
     const genres = media.genres?.filter(Boolean) ?? [];
-    const popularityRaw = media.averageScore ?? media.popularity ?? undefined;
+    // Use averageScore (user rating 0-100) instead of popularity
+    // averageScore represents actual user ratings, which is more meaningful
+    // Only fallback to popularity if averageScore is not available
+    const popularityRaw = media.averageScore != null && media.averageScore > 0 
+      ? media.averageScore 
+      : media.popularity ?? undefined;
     const synopsis = media.description ? stripTags(media.description) : null;
     const providerUrl = media.siteUrl ?? null;
     return {

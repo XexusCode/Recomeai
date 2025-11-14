@@ -1,11 +1,16 @@
 export interface PopularityCandidate {
   popularityRaw?: number | null;
   synopsis?: string | null;
+  source?: string;
 }
 
 /**
- * Normalizes popularity using percentile-based scaling for better distribution.
- * This approach is more robust to outliers and provides fairer scaling.
+ * Normalizes popularity using provider-specific scaling for proportional conversion.
+ * Each provider has its own scale, so we normalize proportionally:
+ * - TMDb: typically 0-1000+, divide by 10 (951 → 95.1)
+ * - AniList: 0-100, keep as is
+ * - Google Books: 0-5, multiply by 20 (4.5 → 90)
+ * - OMDb: 0-10, multiply by 10 (8.5 → 85)
  */
 export function normalizePopularityBatch(items: PopularityCandidate[]): number[] {
   const rawValues = items.map((item) => item.popularityRaw).filter((value): value is number => typeof value === "number" && Number.isFinite(value));
@@ -18,47 +23,60 @@ export function normalizePopularityBatch(items: PopularityCandidate[]): number[]
     });
   }
   
-  // Sort for percentile calculation
-  const sorted = [...rawValues].sort((a, b) => a - b);
-  const p5 = sorted[Math.floor(sorted.length * 0.05)] ?? sorted[0];
-  const p25 = sorted[Math.floor(sorted.length * 0.25)] ?? sorted[0];
-  const p50 = sorted[Math.floor(sorted.length * 0.50)] ?? sorted[0];
-  const p75 = sorted[Math.floor(sorted.length * 0.75)] ?? sorted[sorted.length - 1];
-  const p95 = sorted[Math.floor(sorted.length * 0.95)] ?? sorted[sorted.length - 1];
-  
-  // Use percentile-based normalization:
-  // - Items below p25 map to 0-25
-  // - Items p25-p50 map to 25-50
-  // - Items p50-p75 map to 50-75
-  // - Items p75-p95 map to 75-95
-  // - Items above p95 map to 95-100
-  // This ensures better distribution and handles outliers gracefully
-  
   return items.map((item) => {
     if (typeof item.popularityRaw === "number" && Number.isFinite(item.popularityRaw)) {
       const raw = item.popularityRaw;
+      const source = item.source;
       
-      if (raw <= p25) {
-        // Bottom quartile: map to 0-25
-        const ratio = p25 > p5 ? (raw - p5) / (p25 - p5) : 0;
-        return clamp(ratio * 25, 0, 25);
-      } else if (raw <= p50) {
-        // Second quartile: map to 25-50
-        const ratio = (raw - p25) / (p50 - p25);
-        return clamp(25 + ratio * 25, 25, 50);
-      } else if (raw <= p75) {
-        // Third quartile: map to 50-75
-        const ratio = (raw - p50) / (p75 - p50);
-        return clamp(50 + ratio * 25, 50, 75);
-      } else if (raw <= p95) {
-        // Top quartile (below outliers): map to 75-95
-        const ratio = (raw - p75) / (p95 - p75);
-        return clamp(75 + ratio * 20, 75, 95);
+      // Provider-specific normalization
+      if (source === "tmdb") {
+        // TMDb: Now using vote_average (user rating 0-10) instead of popularity
+        // vote_average is the actual user rating, which is more meaningful
+        // Scale: 0-10 → 0-100 (multiply by 10)
+        // Example: 8.6 → 86, 7.5 → 75, 9.2 → 92
+        if (raw <= 10) {
+          // This is vote_average (0-10 scale), multiply by 10
+          return clamp(raw * 10, 0, 100);
+        } else {
+          // Fallback: old popularity metric (values can be > 10)
+          // Values < 100: multiply by 1.2
+          // Values >= 100: use sqrt scaling
+          if (raw >= 100) {
+            return clamp(Math.sqrt(raw) * 10, 0, 100);
+          } else {
+            return clamp(raw * 1.2, 0, 100);
+          }
+        }
+      } else if (source === "anilist") {
+        // AniList: Now using averageScore (user rating 0-100) instead of popularity
+        // averageScore is the actual user rating, which is more meaningful
+        // Scale: 0-100 → 0-100 (already in correct scale)
+        // Example: 85 → 85, 92 → 92, 78 → 78
+        if (raw <= 100) {
+          // This is averageScore (0-100 scale), use as is
+          return clamp(raw, 0, 100);
+        } else {
+          // Fallback: old popularity metric (values can be > 100)
+          // Divide by 10 to normalize
+          return clamp(raw / 10, 0, 100);
+        }
+      } else if (source === "googlebooks") {
+        // Google Books: 0-5 scale, multiply by 20
+        return clamp(raw * 20, 0, 100);
+      } else if (source === "omdb") {
+        // OMDb: 0-10 scale, multiply by 10
+        return clamp(raw * 10, 0, 100);
       } else {
-        // Outliers: map to 95-100
+        // Unknown source: use percentile-based normalization as fallback
+        const sorted = [...rawValues].sort((a, b) => a - b);
+        const min = sorted[0];
         const max = sorted[sorted.length - 1];
-        const ratio = max > p95 ? (raw - p95) / (max - p95) : 0;
-        return clamp(95 + ratio * 5, 95, 100);
+        if (min === max) {
+          return 50;
+        }
+        // Linear scaling from min to max
+        const ratio = (raw - min) / (max - min);
+        return clamp(ratio * 100, 0, 100);
       }
     }
     const synopsisLength = (item.synopsis ?? "").split(/\s+/).filter(Boolean).length;

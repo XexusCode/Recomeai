@@ -37,7 +37,12 @@ async function main() {
   const raw = fs.readFileSync(seedPath, "utf-8");
   const items = JSON.parse(raw) as SeedItem[];
 
-  const popularity = normalizePopularityBatch(items);
+  // Add source to items for provider-specific normalization
+  const itemsWithSource = items.map((item) => ({
+    ...item,
+    source: item.source ?? "mock",
+  }));
+  const popularity = normalizePopularityBatch(itemsWithSource);
   const embeddings = getEmbeddings();
   const embeddingInputs = items.map((item) => buildEmbeddingText(item));
   const embedded = await embeddings.embed(embeddingInputs);
