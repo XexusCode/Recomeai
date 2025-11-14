@@ -630,10 +630,10 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
             {strings.home.heroSubtitle}
           </p>
         </header>
-        <div className="sticky top-0 z-40 space-y-4">
+        <div className="space-y-4 md:sticky md:top-4 md:z-40">
           <form
             onSubmit={handleSubmit}
-            className="rounded-3xl border border-white/40 bg-gradient-to-br from-white/95 via-slate-50/90 to-blue-50/70 p-6 shadow-[0_25px_85px_rgba(15,23,42,0.25)] backdrop-blur-lg dark:border-slate-800/70 dark:from-slate-950/95 dark:via-slate-900/80 dark:to-blue-950/40"
+            className="rounded-3xl border border-white/40 bg-gradient-to-br from-white/95 via-slate-50/90 to-blue-50/70 p-4 shadow-[0_25px_85px_rgba(15,23,42,0.25)] backdrop-blur-lg dark:border-slate-800/70 dark:from-slate-950/95 dark:via-slate-900/80 dark:to-blue-950/40 sm:p-6"
           >
             <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[2.2fr,1fr] lg:gap-8">
               <div className="space-y-4">
@@ -677,7 +677,7 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
                     </button>
                   </div>
                 </div>
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="-mx-4 flex gap-2 overflow-x-auto pb-1 pl-4 pr-4 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
                   {[...quickChips, surpriseChip].map((chip) => {
                     const isActive = activeChip === chip.id;
                     return (
@@ -686,7 +686,7 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
                         type="button"
                         onClick={() => handleQuickChip(chip)}
                         className={clsx(
-                          "group relative overflow-hidden rounded-2xl border px-4 py-2 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500",
+                          "group relative shrink-0 overflow-hidden rounded-2xl border px-4 py-2 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500",
                           isActive
                             ? "border-transparent bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg"
                             : "border-slate-200 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:hover:border-blue-500/40 dark:hover:bg-blue-950/40",
@@ -757,8 +757,8 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
                 )}
               </div>
             </div>
-            <div className="mt-6 grid gap-6 sm:grid-cols-2 sm:gap-8">
-              <div className="space-y-1.5">
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 sm:gap-6">
+              <div className="space-y-1.5 rounded-2xl border border-white/60 bg-white/80 p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900/60">
                 <div className="flex items-center gap-1.5">
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
                     {strings.home.typeLabel}
@@ -779,7 +779,7 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
                   ariaLabel={strings.home.typeLabel}
                 />
               </div>
-              <div className="space-y-3">
+              <div className="space-y-3 rounded-2xl border border-white/60 bg-white/80 p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900/60">
                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
                   {strings.home.popularityLabel}
                 </label>
@@ -798,19 +798,19 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
                   }}
                 />
               </div>
-              <div className="space-y-3 sm:col-span-2">
+              <div className="space-y-3 rounded-2xl border border-white/60 bg-white/80 p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900/60 sm:col-span-2">
                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
                   {strings.home.yearRangeLabel}
                 </label>
                 <div className="space-y-3">
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="-mx-4 flex gap-2 overflow-x-auto pb-1 pl-4 pr-4 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
                     {yearQuickOptions.map((chip) => (
                       <button
                         key={chip.id}
                         type="button"
                         onClick={() => handleYearQuickRange(chip.id, chip.range)}
                         className={clsx(
-                          "rounded-full border px-4 py-2 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500",
+                          "shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500",
                           activeYearChip === chip.id
                             ? "border-blue-600 bg-blue-600 text-white shadow"
                             : "border-slate-200 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-blue-500/40 dark:hover:bg-blue-900/20",
@@ -826,7 +826,7 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
                       <input
                         type="number"
                         inputMode="numeric"
-                        className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-base text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-base text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                         placeholder={strings.home.slider.year.inputMinPlaceholder}
                         value={yearRange[0] ?? ""}
                         min={yearLowerBound}
@@ -839,7 +839,7 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
                       <input
                         type="number"
                         inputMode="numeric"
-                        className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-base text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-base text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                         placeholder={strings.home.slider.year.inputMaxPlaceholder}
                         value={yearRange[1] ?? ""}
                         min={yearLowerBound + 1}

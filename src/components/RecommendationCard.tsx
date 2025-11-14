@@ -125,7 +125,7 @@ export function RecommendationCard({ item, placeholder = false, locale }: Recomm
         suppressHydrationWarning
         dangerouslySetInnerHTML={{ __html: structuredData }}
       />
-      <div className="relative h-60 w-full bg-slate-100 dark:bg-slate-800">
+      <div className="relative h-48 w-full bg-slate-100 dark:bg-slate-800 sm:h-60">
         <SafeImage
           src={item.posterUrl}
           alt={item.title}
@@ -138,7 +138,7 @@ export function RecommendationCard({ item, placeholder = false, locale }: Recomm
           {typeBadge}
         </span>
       </div>
-      <div className="flex flex-1 flex-col gap-5 p-6">
+      <div className="flex flex-1 flex-col gap-5 p-4 sm:p-6">
         <div className="flex items-center gap-3">
           <span className="text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-300">
             {strings.common.card.matchLabel} {matchScore}%
