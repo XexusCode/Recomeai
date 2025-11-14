@@ -84,7 +84,11 @@ export function SafeImage({
           setHasError(true);
         }
       }}
-      unoptimized={imageSrc?.includes("image.tmdb.org") || imageSrc?.includes("amazon.com")}
+      unoptimized={
+        imageSrc?.includes("image.tmdb.org") ||
+        imageSrc?.includes("amazon.com") ||
+        imageSrc?.includes("anilist.co")
+      }
     />
   );
 }

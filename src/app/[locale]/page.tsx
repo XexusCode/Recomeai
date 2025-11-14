@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { toast } from "sonner";
 import Link from "next/link";
 import {
+  ArrowPathIcon,
   BoltIcon,
   CalendarDaysIcon,
   FaceSmileIcon,
@@ -81,6 +82,7 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
   const [anchor, setAnchor] = useState<RecommendationPayload | null>(null);
   const [selectedSuggestion, setSelectedSuggestion] = useState<Suggestion | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [isLoading, setIsLoading] = useState(false);
   const [lastSignature, setLastSignature] = useState<string | null>(null);
   const [lastQuery, setLastQuery] = useState<string>("");
   const [activeChip, setActiveChip] = useState<string | null>(null);
@@ -309,6 +311,7 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
       },
     ) => {
       try {
+        setIsLoading(true);
         const params = new URLSearchParams();
         if (options.mode === "search") {
           params.set("query", options.searchQuery ?? "");
@@ -337,7 +340,9 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
         setLastSignature(options.signature);
         setLastQuery(options.searchQuery ?? "");
         setCurrentMode(options.mode);
-        setShouldScrollToResults(items.length > 0);
+        if (items.length > 0) {
+          setShouldScrollToResults(true);
+        }
         if (items.length === 0) {
           if (options.mode === "search" && options.searchQuery) {
             setStatusMessage({
@@ -354,6 +359,8 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
         console.error(error);
         toast.error(strings.common.messages.fetchError);
         setStatusMessage({ type: "error", text: strings.home.fetchFailed });
+      } finally {
+        setIsLoading(false);
       }
     },
     [type, yearRange, popularityMin, locale, strings.common.messages.fetchError, strings.home.emptyPrompt, strings.home.fetchFailed, strings.home.noResults],
@@ -385,9 +392,16 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
   };
 
   const handleShowMore = () => {
-    if (isPending) return;
+    if (isPending || isLoading) return;
     if (hasMorePages) {
-      setPageIndex((current) => Math.min(current + 1, totalPages - 1));
+      setPageIndex((current) => {
+        const nextIndex = Math.min(current + 1, totalPages - 1);
+        // Trigger scroll after state update
+        setTimeout(() => {
+          setShouldScrollToResults(true);
+        }, 0);
+        return nextIndex;
+      });
       return;
     }
     if (canFetchNextBatch) {
@@ -579,11 +593,15 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
   }, [searchInputRef]);
 
   useEffect(() => {
-    if (!shouldScrollToResults || isPending) {
+    if (!shouldScrollToResults) {
       return;
     }
     if (displayRecommendations.length === 0) {
       setShouldScrollToResults(false);
+      return;
+    }
+    // Wait for loading to complete before scrolling
+    if (isPending || isLoading) {
       return;
     }
     const node = resultsSectionRef.current;
@@ -597,7 +615,7 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
     return () => {
       cancelAnimationFrame(frame);
     };
-  }, [shouldScrollToResults, isPending, displayRecommendations.length]);
+  }, [shouldScrollToResults, isPending, isLoading, displayRecommendations.length]);
 
   return (
     <main
@@ -671,10 +689,11 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
                     </button>
                     <button
                       type="submit"
-                      className="relative inline-flex items-center rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-4 py-2 text-xs font-bold text-white shadow-[0_15px_35px_rgba(59,130,246,0.45)] transition hover:translate-y-[-1px] hover:shadow-[0_20px_40px_rgba(79,70,229,0.45)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-not-allowed disabled:opacity-70 sm:px-6 sm:text-sm"
-                      disabled={isPending}
+                      className="relative inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-4 py-2 text-xs font-bold text-white shadow-[0_15px_35px_rgba(59,130,246,0.45)] transition hover:translate-y-[-1px] hover:shadow-[0_20px_40px_rgba(79,70,229,0.45)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 sm:px-6 sm:text-sm"
+                      disabled={isPending || isLoading}
                     >
-                      {buttonLabel}
+                      {(isPending || isLoading) && <ArrowPathIcon className="h-4 w-4 animate-spin text-white sm:h-5 sm:w-5" aria-hidden="true" />}
+                      <span>{buttonLabel}</span>
                     </button>
                   </div>
                 </div>

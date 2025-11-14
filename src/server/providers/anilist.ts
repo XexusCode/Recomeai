@@ -18,6 +18,7 @@ interface AnilistMedia {
   genres?: string[] | null;
   coverImage?: {
     medium?: string | null;
+    large?: string | null;
   };
   averageScore?: number | null;
   popularity?: number | null;
@@ -46,7 +47,7 @@ const querySearch = `
         startDate { year }
         description(asHtml: false)
         genres
-        coverImage { medium }
+        coverImage { medium large }
         averageScore
         popularity
         siteUrl
@@ -63,7 +64,7 @@ const queryById = `
       startDate { year }
       description(asHtml: false)
       genres
-      coverImage { medium }
+      coverImage { medium large }
       averageScore
       popularity
       siteUrl
@@ -86,7 +87,7 @@ const queryDiscover = `
         startDate { year }
         description(asHtml: false)
         genres
-        coverImage { medium }
+        coverImage { medium large }
         averageScore
         popularity
         siteUrl
@@ -200,7 +201,7 @@ export class AnilistProvider implements ContentProvider {
       year,
       synopsis,
       genres,
-      posterUrl: media.coverImage?.medium ?? null,
+      posterUrl: media.coverImage?.large ?? media.coverImage?.medium ?? null,
       popularityRaw,
       providerUrl,
       availability: buildDefaultAvailability(title, "anime", defaultLocale),
