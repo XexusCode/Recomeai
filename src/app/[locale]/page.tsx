@@ -602,7 +602,7 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
   return (
     <main
       id="main-content"
-      className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-10 px-3 pb-20 pt-6 sm:px-6 sm:pt-12 lg:px-8 lg:pt-16"
+      className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-10 px-4 pb-20 pt-6 sm:px-6 sm:pt-12 lg:px-8 lg:pt-16"
     >
       <script
         type="application/ld+json"
@@ -633,7 +633,7 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
         <div className="space-y-4 md:sticky md:top-4 md:z-40">
           <form
             onSubmit={handleSubmit}
-            className="rounded-3xl border border-white/40 bg-gradient-to-br from-white/95 via-slate-50/90 to-blue-50/70 p-4 shadow-[0_25px_85px_rgba(15,23,42,0.25)] backdrop-blur-lg max-sm:-mx-2 max-sm:rounded-[26px] max-sm:border-white/60 max-sm:bg-white/95 max-sm:shadow-none max-sm:backdrop-blur sm:p-6 dark:border-slate-800/70 dark:from-slate-950/95 dark:via-slate-900/80 dark:to-blue-950/40"
+            className="rounded-3xl border border-white/40 bg-gradient-to-br from-white/95 via-slate-50/90 to-blue-50/70 p-4 shadow-[0_25px_85px_rgba(15,23,42,0.25)] backdrop-blur-lg max-sm:-mx-4 max-sm:rounded-none max-sm:border-0 max-sm:bg-white max-sm:p-4 max-sm:shadow-none max-sm:backdrop-blur-none sm:p-6 dark:border-slate-800/70 dark:from-slate-950/95 dark:via-slate-900/80 dark:to-blue-950/40"
           >
             <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[2.2fr,1fr] lg:gap-8">
               <div className="space-y-4">
@@ -767,17 +767,19 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
                     ⓘ
                   </span>
                 </div>
-                <TypeSegmentedControl
-                  value={type}
-                  onChange={(value) => {
-                    setType(value);
-                    setActiveChip(null);
-                    setActiveYearChip(null);
-                    setStatusMessage({ type: "info", text: strings.home.readyPrompt });
-                  }}
-                  labels={typeOptionLabels}
-                  ariaLabel={strings.home.typeLabel}
-                />
+                <div className="-mx-2 flex overflow-x-auto pb-1 pl-2 pr-2 sm:mx-0 sm:block sm:overflow-visible sm:px-0">
+                  <TypeSegmentedControl
+                    value={type}
+                    onChange={(value) => {
+                      setType(value);
+                      setActiveChip(null);
+                      setActiveYearChip(null);
+                      setStatusMessage({ type: "info", text: strings.home.readyPrompt });
+                    }}
+                    labels={typeOptionLabels}
+                    ariaLabel={strings.home.typeLabel}
+                  />
+                </div>
               </div>
               <div className="space-y-3 rounded-2xl border border-white/60 bg-white/80 p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900/60">
                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
