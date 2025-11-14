@@ -55,6 +55,13 @@ export function RecommendationCard({ item, placeholder = false, locale }: Recomm
   const bulletPoints = buildBulletPoints(item, strings.common.card.bullets, typeBadge);
   const synopsis = item.synopsis ? truncateText(item.synopsis, 220) : null;
   const primaryActionRef = useRef<HTMLAnchorElement | null>(null);
+  const matchScore = Math.min(
+    100,
+    Math.max(
+      1,
+      item.score ? Math.round(item.score * 100) : Math.round(Math.min(100, Math.max(0, item.popularity ?? 0))),
+    ),
+  );
   const structuredData = useMemo(() => {
     const schemaType = schemaTypeFor(item.type);
     const base: Record<string, unknown> = {
@@ -132,6 +139,17 @@ export function RecommendationCard({ item, placeholder = false, locale }: Recomm
         </span>
       </div>
       <div className="flex flex-1 flex-col gap-5 p-6">
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-300">
+            {strings.common.card.matchLabel} {matchScore}%
+          </span>
+          <div className="relative h-1.5 flex-1 rounded-full bg-slate-200/70 dark:bg-slate-700/70">
+            <span
+              className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500"
+              style={{ width: `${matchScore}%` }}
+            />
+          </div>
+        </div>
         <header className="flex flex-col gap-2">
           <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
             {item.providerUrl ? (

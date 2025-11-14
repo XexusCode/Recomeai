@@ -66,6 +66,7 @@ interface AppStrings {
       popularity: string;
       availabilityHeading: string;
       availabilityEmpty: string;
+      matchLabel: string;
       actions: {
         stream: string;
         buy: string;
@@ -211,6 +212,7 @@ const STRINGS: Record<Locale, AppStrings> = {
         popularity: "Popularity {{value}}",
         availabilityHeading: "Where to find it",
         availabilityEmpty: "Check your preferred services for this title.",
+        matchLabel: "Match",
         actions: {
           stream: "Watch",
           buy: "Buy",
@@ -627,6 +629,7 @@ const STRINGS: Record<Locale, AppStrings> = {
         popularity: "Popularidad {{value}}",
         availabilityHeading: "Dónde verlo",
         availabilityEmpty: "Consulta tus plataformas habituales para este título.",
+        matchLabel: "Afinidad",
         actions: {
           stream: "Ver",
           buy: "Comprar",
@@ -1043,6 +1046,7 @@ const STRINGS: Record<Locale, AppStrings> = {
         popularity: "Popularität {{value}}",
         availabilityHeading: "Wo verfügbar",
         availabilityEmpty: "Prüfe deine bevorzugten Dienste für diesen Titel.",
+        matchLabel: "Trefferquote",
         actions: {
           stream: "Ansehen",
           buy: "Kaufen",

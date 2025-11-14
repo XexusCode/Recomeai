@@ -2,8 +2,16 @@
 
 import clsx from "clsx";
 import { use, useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import type { ReactNode } from "react";
 import { toast } from "sonner";
 import Link from "next/link";
+import {
+  BoltIcon,
+  CalendarDaysIcon,
+  FaceSmileIcon,
+  ShieldCheckIcon,
+  SparklesIcon,
+} from "@heroicons/react/24/outline";
 
 import { Autocomplete } from "@/components/Autocomplete";
 import { PopularitySlider } from "@/components/PopularitySlider";
@@ -27,6 +35,7 @@ type QuickChipConfig = {
   type?: TypeOption;
   yearRange?: [number | null, number | null];
   popMin?: number;
+  icon?: ReactNode;
 };
 
 interface RecommendationResponse {
@@ -119,12 +128,14 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
         label: strings.home.chips.comedy,
         mode: "search" as RecommendationMode,
         query: strings.home.chips.comedy,
+        icon: <FaceSmileIcon className="h-4 w-4" />,
       },
       {
         id: "crime",
         label: strings.home.chips.crime,
         mode: "search" as RecommendationMode,
         query: strings.home.chips.crime,
+        icon: <ShieldCheckIcon className="h-4 w-4" />,
       },
       {
         id: "anime",
@@ -132,12 +143,14 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
         mode: "search" as RecommendationMode,
         query: strings.home.chips.anime,
         type: "anime" as TypeOption,
+        icon: <SparklesIcon className="h-4 w-4" />,
       },
       {
         id: "year2024",
         label: strings.home.chips.year2024,
         mode: "random" as RecommendationMode,
         yearRange: [2024, 2024] as [number, number],
+        icon: <CalendarDaysIcon className="h-4 w-4" />,
       },
     ],
     [strings.home.chips],
@@ -148,6 +161,7 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
       id: "surprise",
       label: strings.home.chips.surprise,
       mode: "random" as RecommendationMode,
+      icon: <BoltIcon className="h-4 w-4" />,
     }),
     [strings.home.chips.surprise],
   );
@@ -619,121 +633,129 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
         <div className="sticky top-0 z-40 space-y-4">
           <form
             onSubmit={handleSubmit}
-            className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-xl backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/90"
+            className="rounded-3xl border border-white/40 bg-gradient-to-br from-white/95 via-slate-50/90 to-blue-50/70 p-6 shadow-[0_25px_85px_rgba(15,23,42,0.25)] backdrop-blur-lg dark:border-slate-800/70 dark:from-slate-950/95 dark:via-slate-900/80 dark:to-blue-950/40"
           >
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                <div className="flex-1">
-                  <label htmlFor="search-input" className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
-                    {strings.home.searchLabel}
-                  </label>
-                  <Autocomplete
-                    onSelect={handleSelection}
-                    onQueryChange={(value) => {
-                      setQuery(value);
-                      if (value.trim().length === 0) {
-                        setActiveChip(null);
-                        setStatusMessage({ type: "info", text: strings.home.emptyPrompt });
-                      } else {
-                        setStatusMessage(null);
-                      }
-                    }}
-                    initialQuery={query}
-                    placeholder={strings.home.autocomplete.placeholder}
-                    messages={autocompleteMessages}
-                    typeLabel={(type) => typeLabelSingular(type)}
-                    inputRef={searchInputRef}
-                  />
-                </div>
-                <div className="flex gap-2 sm:flex-none">
-                  <button
-                    type="button"
-                    onClick={handleResetFilters}
-                    className="inline-flex items-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800"
-                  >
-                    {strings.common.buttons.resetFilters}
-                  </button>
-                  <button
-                    type="submit"
-                    className="inline-flex items-center rounded-xl bg-blue-600 px-6 py-2 text-sm font-bold text-white shadow-lg transition hover:bg-blue-700 hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-not-allowed disabled:opacity-70"
-                    disabled={isPending}
-                  >
-                    {buttonLabel}
-                  </button>
-                </div>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                {quickChips.map((chip) => (
-                  <button
-                    key={chip.id}
-                    type="button"
-                    onClick={() => handleQuickChip(chip)}
-                    className={clsx(
-                      "rounded-full border px-4 py-2 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500",
-                      activeChip === chip.id
-                        ? "border-blue-600 bg-blue-600 text-white shadow"
-                        : "border-slate-200 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-blue-500/40 dark:hover:bg-blue-900/20",
-                    )}
-                  >
-                    {chip.label}
-                  </button>
-                ))}
-                <button
-                  type="button"
-                  onClick={() => handleQuickChip(surpriseChip)}
-                  className={clsx(
-                    "rounded-full border px-4 py-2 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500",
-                    activeChip === surpriseChip.id
-                      ? "border-blue-600 bg-blue-600 text-white shadow"
-                      : "border-blue-200 bg-blue-50 text-blue-700 hover:border-blue-300 hover:bg-blue-100 dark:border-blue-500/40 dark:bg-blue-900/20 dark:text-blue-200 dark:hover:bg-blue-900/30",
-                  )}
-                >
-                  {surpriseChip.label}
-                </button>
-              </div>
-              {selectedSuggestion?.posterUrl && (
-                <div className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-gradient-to-r from-slate-50 to-blue-50/30 p-4 shadow-sm dark:border-slate-700 dark:from-slate-800/50 dark:to-blue-900/20">
-                  <img
-                    src={selectedSuggestion.posterUrl}
-                    alt={format(strings.home.selectedPosterAlt, { title: selectedSuggestion.title })}
-                    className="h-28 w-20 rounded-lg object-cover shadow-md sm:h-32 sm:w-22"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = "none";
-                    }}
-                  />
-                  <div className="flex flex-col gap-1">
-                    <span className="text-base font-semibold text-slate-900 dark:text-slate-100 sm:text-lg">
-                      {selectedSuggestion.title}
-                    </span>
-                    <span className="text-sm text-slate-600 dark:text-slate-400">
-                      {typeLabelSingular(selectedSuggestion.type)} • {selectedSuggestion.year ?? "Year N/A"}
-                    </span>
+            <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[2.2fr,1fr] lg:gap-8">
+              <div className="space-y-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                  <div className="flex-1">
+                    <label htmlFor="search-input" className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                      {strings.home.searchLabel}
+                    </label>
+                    <Autocomplete
+                      onSelect={handleSelection}
+                      onQueryChange={(value) => {
+                        setQuery(value);
+                        if (value.trim().length === 0) {
+                          setActiveChip(null);
+                          setStatusMessage({ type: "info", text: strings.home.emptyPrompt });
+                        } else {
+                          setStatusMessage(null);
+                        }
+                      }}
+                      initialQuery={query}
+                      placeholder={strings.home.autocomplete.placeholder}
+                      messages={autocompleteMessages}
+                      typeLabel={(type) => typeLabelSingular(type)}
+                      inputRef={searchInputRef}
+                    />
+                  </div>
+                  <div className="flex gap-2 sm:flex-none">
+                    <button
+                      type="button"
+                      onClick={handleResetFilters}
+                      className="inline-flex items-center rounded-xl border border-slate-200/80 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900"
+                    >
+                      {strings.common.buttons.resetFilters}
+                    </button>
+                    <button
+                      type="submit"
+                      className="relative inline-flex items-center rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-6 py-2 text-sm font-bold text-white shadow-[0_15px_35px_rgba(59,130,246,0.45)] transition hover:translate-y-[-1px] hover:shadow-[0_20px_40px_rgba(79,70,229,0.45)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-not-allowed disabled:opacity-70"
+                      disabled={isPending}
+                    >
+                      {buttonLabel}
+                    </button>
                   </div>
                 </div>
-              )}
-              {statusMessage && (
-                <div
-                  className={clsx(
-                    "rounded-2xl px-4 py-3 text-sm",
-                    statusMessage.type === "error"
-                      ? "border border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-500/40 dark:bg-rose-900/20 dark:text-rose-200"
-                      : "border border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-500/40 dark:bg-blue-900/20 dark:text-blue-200",
-                  )}
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <span>{statusMessage.text}</span>
-                    {statusMessage.type === "error" && (
+                <div className="flex flex-wrap items-center gap-2">
+                  {[...quickChips, surpriseChip].map((chip) => {
+                    const isActive = activeChip === chip.id;
+                    return (
                       <button
+                        key={chip.id}
                         type="button"
-                        onClick={handleResetFilters}
-                        className="text-sm font-semibold underline decoration-current"
+                        onClick={() => handleQuickChip(chip)}
+                        className={clsx(
+                          "group relative overflow-hidden rounded-2xl border px-4 py-2 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500",
+                          isActive
+                            ? "border-transparent bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg"
+                            : "border-slate-200 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:hover:border-blue-500/40 dark:hover:bg-blue-950/40",
+                        )}
                       >
-                        {strings.common.buttons.resetFilters}
+                        <span className="flex items-center gap-2">
+                          {chip.icon && <span className={clsx("text-blue-500", isActive && "text-white")}>{chip.icon}</span>}
+                          {chip.label}
+                        </span>
                       </button>
-                    )}
-                  </div>
+                    );
+                  })}
                 </div>
-              )}
+              </div>
+              <div className="space-y-4">
+                <div className="min-h-[170px] rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-inner dark:border-slate-700 dark:bg-slate-900/70">
+                  {selectedSuggestion?.posterUrl ? (
+                    <div className="flex items-center gap-4">
+                      <img
+                        src={selectedSuggestion.posterUrl}
+                        alt={format(strings.home.selectedPosterAlt, { title: selectedSuggestion.title })}
+                        className="h-28 w-20 rounded-lg object-cover shadow-md sm:h-32 sm:w-24"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = "none";
+                        }}
+                      />
+                      <div className="flex flex-col gap-1">
+                        <span className="text-base font-semibold text-slate-900 dark:text-slate-100 sm:text-lg">
+                          {selectedSuggestion.title}
+                        </span>
+                        <span className="text-sm text-slate-600 dark:text-slate-400">
+                          {typeLabelSingular(selectedSuggestion.type)} • {selectedSuggestion.year ?? strings.common.labels.yearUnknown}
+                        </span>
+                        <span className="text-xs uppercase tracking-wide text-blue-600 dark:text-blue-300">
+                          {strings.home.anchorHeading}
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex h-full flex-col items-center justify-center gap-3 text-center text-sm text-slate-500 dark:text-slate-400">
+                      <SparklesIcon className="h-6 w-6 text-blue-500 dark:text-blue-300" />
+                      <p>{strings.home.randomNotice}</p>
+                    </div>
+                  )}
+                </div>
+                {statusMessage && (
+                  <div
+                    className={clsx(
+                      "rounded-2xl px-4 py-3 text-sm",
+                      statusMessage.type === "error"
+                        ? "border border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-500/40 dark:bg-rose-900/20 dark:text-rose-200"
+                        : "border border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-500/40 dark:bg-blue-900/20 dark:text-blue-200",
+                    )}
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <span>{statusMessage.text}</span>
+                      {statusMessage.type === "error" && (
+                        <button
+                          type="button"
+                          onClick={handleResetFilters}
+                          className="text-sm font-semibold underline decoration-current"
+                        >
+                          {strings.common.buttons.resetFilters}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="mt-6 grid gap-6 sm:grid-cols-2 sm:gap-8">
               <div className="space-y-1.5">
