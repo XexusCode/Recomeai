@@ -602,7 +602,7 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
   return (
     <main
       id="main-content"
-      className="flex min-h-screen w-full flex-col gap-10 px-4 pb-20 pt-6 sm:mx-auto sm:max-w-7xl sm:px-6 sm:pt-12 lg:px-8 lg:pt-16"
+      className="flex min-h-screen w-full max-w-full flex-col gap-6 overflow-x-hidden px-3 pb-16 pt-4 sm:mx-auto sm:max-w-7xl sm:gap-10 sm:px-6 sm:pb-20 sm:pt-12 lg:px-8 lg:pt-16"
     >
       <script
         type="application/ld+json"
@@ -633,12 +633,12 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
         <div className="space-y-4 md:sticky md:top-4 md:z-40">
           <form
             onSubmit={handleSubmit}
-            className="w-full rounded-3xl border border-white/40 bg-gradient-to-br from-white/95 via-slate-50/90 to-blue-50/70 p-4 shadow-[0_25px_85px_rgba(15,23,42,0.25)] backdrop-blur-lg max-sm:rounded-2xl max-sm:border max-sm:border-slate-200 max-sm:bg-white max-sm:shadow-sm sm:p-6 dark:border-slate-800/70 dark:from-slate-950/95 dark:via-slate-900/80 dark:to-blue-950/40"
+            className="w-full max-w-full rounded-3xl border border-white/40 bg-gradient-to-br from-white/95 via-slate-50/90 to-blue-50/70 p-3 shadow-[0_25px_85px_rgba(15,23,42,0.25)] backdrop-blur-lg max-sm:rounded-2xl max-sm:border max-sm:border-slate-200 max-sm:bg-white max-sm:shadow-sm sm:p-6 dark:border-slate-800/70 dark:from-slate-950/95 dark:via-slate-900/80 dark:to-blue-950/40"
           >
-            <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[2.2fr,1fr] lg:gap-8">
-              <div className="space-y-4">
+            <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[2.2fr,1fr] lg:gap-8">
+              <div className="min-w-0 space-y-3 sm:space-y-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                  <div className="flex-1">
+                  <div className="min-w-0 flex-1">
                     <label htmlFor="search-input" className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                       {strings.home.searchLabel}
                     </label>
@@ -660,17 +660,18 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
                       inputRef={searchInputRef}
                     />
                   </div>
-                  <div className="flex gap-2 sm:flex-none">
+                  <div className="flex shrink-0 gap-2 sm:flex-none">
                     <button
                       type="button"
                       onClick={handleResetFilters}
-                      className="inline-flex items-center rounded-xl border border-slate-200/80 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900"
+                      className="inline-flex items-center rounded-xl border border-slate-200/80 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 sm:px-4 sm:text-sm dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900"
                     >
-                      {strings.common.buttons.resetFilters}
+                      <span className="hidden sm:inline">{strings.common.buttons.resetFilters}</span>
+                      <span className="sm:hidden">Reset</span>
                     </button>
                     <button
                       type="submit"
-                      className="relative inline-flex items-center rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-6 py-2 text-sm font-bold text-white shadow-[0_15px_35px_rgba(59,130,246,0.45)] transition hover:translate-y-[-1px] hover:shadow-[0_20px_40px_rgba(79,70,229,0.45)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-not-allowed disabled:opacity-70"
+                      className="relative inline-flex items-center rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-4 py-2 text-xs font-bold text-white shadow-[0_15px_35px_rgba(59,130,246,0.45)] transition hover:translate-y-[-1px] hover:shadow-[0_20px_40px_rgba(79,70,229,0.45)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-not-allowed disabled:opacity-70 sm:px-6 sm:text-sm"
                       disabled={isPending}
                     >
                       {buttonLabel}
@@ -686,23 +687,23 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
                         type="button"
                         onClick={() => handleQuickChip(chip)}
                         className={clsx(
-                          "group relative shrink-0 overflow-hidden rounded-2xl border px-4 py-2 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500",
+                          "group relative shrink-0 overflow-hidden rounded-xl border px-3 py-1.5 text-xs font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 sm:rounded-2xl sm:px-4 sm:py-2 sm:text-sm",
                           isActive
                             ? "border-transparent bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg"
                             : "border-slate-200 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:hover:border-blue-500/40 dark:hover:bg-blue-950/40",
                         )}
                       >
-                        <span className="flex items-center gap-2">
-                          {chip.icon && <span className={clsx("text-blue-500", isActive && "text-white")}>{chip.icon}</span>}
-                          {chip.label}
+                        <span className="flex items-center gap-1.5 sm:gap-2">
+                          {chip.icon && <span className={clsx("shrink-0 text-blue-500", isActive && "text-white")}>{chip.icon}</span>}
+                          <span className="whitespace-nowrap">{chip.label}</span>
                         </span>
                       </button>
                     );
                   })}
                 </div>
               </div>
-              <div className="space-y-4">
-                <div className="min-h-[170px] rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-inner dark:border-slate-700 dark:bg-slate-900/70">
+              <div className="min-w-0 space-y-3 sm:space-y-4">
+                <div className="min-h-[140px] rounded-2xl border border-slate-200/70 bg-white/80 p-3 shadow-inner sm:min-h-[170px] sm:p-4 dark:border-slate-700 dark:bg-slate-900/70">
                   {selectedSuggestion?.posterUrl ? (
                     <div className="flex items-center gap-4">
                       <img
@@ -757,8 +758,8 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
                 )}
               </div>
             </div>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 sm:gap-6">
-              <div className="space-y-1.5 rounded-2xl border border-white/60 bg-white/80 p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900/60">
+            <div className="mt-4 grid gap-3 sm:mt-6 sm:grid-cols-2 sm:gap-6">
+              <div className="min-w-0 space-y-1.5 rounded-2xl border border-white/60 bg-white/80 p-2.5 shadow-sm sm:p-3 dark:border-slate-800 dark:bg-slate-900/60">
                 <div className="flex items-center gap-1.5">
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
                     {strings.home.typeLabel}
@@ -767,7 +768,7 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
                     ⓘ
                   </span>
                 </div>
-                <div className="flex overflow-x-auto pb-1 scrollbar-hide sm:block sm:overflow-visible">
+                <div className="w-full overflow-x-auto pb-1 scrollbar-hide sm:overflow-visible">
                   <TypeSegmentedControl
                     value={type}
                     onChange={(value) => {
@@ -781,7 +782,7 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
                   />
                 </div>
               </div>
-              <div className="space-y-3 rounded-2xl border border-white/60 bg-white/80 p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900/60">
+              <div className="min-w-0 space-y-2 rounded-2xl border border-white/60 bg-white/80 p-2.5 shadow-sm sm:space-y-3 sm:p-3 dark:border-slate-800 dark:bg-slate-900/60">
                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
                   {strings.home.popularityLabel}
                 </label>
@@ -800,19 +801,19 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
                   }}
                 />
               </div>
-              <div className="space-y-3 rounded-2xl border border-white/60 bg-white/80 p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900/60 sm:col-span-2">
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+              <div className="min-w-0 space-y-2 rounded-2xl border border-white/60 bg-white/80 p-2.5 shadow-sm sm:col-span-2 sm:space-y-3 sm:p-3 dark:border-slate-800 dark:bg-slate-900/60">
+                <label className="block text-xs font-semibold text-slate-700 sm:text-sm dark:text-slate-300">
                   {strings.home.yearRangeLabel}
                 </label>
-                <div className="space-y-3">
-                  <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide sm:flex-wrap sm:overflow-visible">
+                <div className="space-y-2 sm:space-y-3">
+                  <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide sm:gap-2 sm:flex-wrap sm:overflow-visible">
                     {yearQuickOptions.map((chip) => (
                       <button
                         key={chip.id}
                         type="button"
                         onClick={() => handleYearQuickRange(chip.id, chip.range)}
                         className={clsx(
-                          "shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500",
+                          "shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 sm:px-4 sm:py-2 sm:text-sm",
                           activeYearChip === chip.id
                             ? "border-blue-600 bg-blue-600 text-white shadow"
                             : "border-slate-200 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-blue-500/40 dark:hover:bg-blue-900/20",
@@ -822,13 +823,13 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
                       </button>
                     ))}
                   </div>
-                  <div className="grid gap-3 md:grid-cols-2">
-                    <label className="flex flex-col gap-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                  <div className="grid gap-2 sm:gap-3 md:grid-cols-2">
+                    <label className="flex min-w-0 flex-col gap-1 text-xs font-medium text-slate-600 sm:text-sm dark:text-slate-300">
                       <span>{strings.home.slider.year.inputMinPlaceholder}</span>
                       <input
                         type="number"
                         inputMode="numeric"
-                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-base text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                        className="w-full min-w-0 rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40 sm:px-3 sm:py-2 sm:text-base dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                         placeholder={strings.home.slider.year.inputMinPlaceholder}
                         value={yearRange[0] ?? ""}
                         min={yearLowerBound}
@@ -836,12 +837,12 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
                         onChange={(event) => handleYearInputChange("min", event.target.value)}
                       />
                     </label>
-                    <label className="flex flex-col gap-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                    <label className="flex min-w-0 flex-col gap-1 text-xs font-medium text-slate-600 sm:text-sm dark:text-slate-300">
                       <span>{strings.home.slider.year.inputMaxPlaceholder}</span>
                       <input
                         type="number"
                         inputMode="numeric"
-                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-base text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                        className="w-full min-w-0 rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40 sm:px-3 sm:py-2 sm:text-base dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                         placeholder={strings.home.slider.year.inputMaxPlaceholder}
                         value={yearRange[1] ?? ""}
                         min={yearLowerBound + 1}

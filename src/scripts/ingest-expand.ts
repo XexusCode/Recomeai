@@ -142,6 +142,12 @@ export async function runIngest(options: CliOptions): Promise<RunIngestResult> {
       : `'{}'::TEXT[]`;
     const genresArray = Prisma.raw(genresArrayLiteral);
 
+    if (!hasLatinCharacters(item.title)) {
+      skipped += 1;
+      console.warn(`[Ingest] Skipping non-Latin title: ${item.title}`);
+      continue;
+    }
+
     if (options.skipExisting) {
       const existing = await prisma.item.findFirst({
         where: {
@@ -589,6 +595,11 @@ function hasFetchLocalizations(
 
 function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function hasLatinCharacters(value: string | null | undefined): boolean {
+  if (!value) return false;
+  return /[A-Za-zÁÉÍÓÚÑáéíóúñ]/.test(value);
 }
 
 async function main() {

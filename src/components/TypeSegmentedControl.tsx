@@ -55,7 +55,7 @@ export function TypeSegmentedControl({ value, onChange, labels, ariaLabel }: Typ
     <div
       role="radiogroup"
       aria-label={ariaLabel ?? "Filter by type"}
-      className="relative flex h-full w-full gap-0.5 rounded-md bg-slate-200/50 p-0.5 dark:bg-slate-800/50"
+      className="relative flex h-full w-full min-w-0 gap-0.5 rounded-md bg-slate-200/50 p-0.5 dark:bg-slate-800/50"
     >
       {(Object.keys(BASE_LABELS) as TypeOption[]).map((option) => (
         <button
@@ -65,9 +65,8 @@ export function TypeSegmentedControl({ value, onChange, labels, ariaLabel }: Typ
           aria-checked={value === option}
           onClick={() => onChange(option)}
           className={clsx(
-            "relative flex flex-1 items-center justify-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium transition-all duration-150 ease-out",
+            "relative flex min-w-0 flex-1 items-center justify-center gap-0.5 rounded-md px-1 py-0.5 text-[10px] font-medium transition-all duration-150 ease-out sm:gap-1 sm:px-2 sm:text-xs",
             "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 dark:focus:ring-offset-slate-900",
-            "min-w-0", // Prevents text overflow
             value === option
               ? "bg-white text-blue-600 shadow-sm dark:bg-slate-700 dark:text-blue-400"
               : "text-slate-600 hover:bg-white/50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-700/40 dark:hover:text-slate-200",
