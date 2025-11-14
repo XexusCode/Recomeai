@@ -24,6 +24,7 @@ export interface ProviderItem {
   genres?: string[];
   posterUrl?: string | null;
   popularityRaw?: number | null;
+  voteCount?: number | null; // For TMDb: number of votes for vote_average
   providerUrl?: string | null;
   availability?: AvailabilityLink[];
   franchiseKey?: string | null;

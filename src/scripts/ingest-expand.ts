@@ -17,6 +17,7 @@ import { GoogleBooksProvider } from "@/server/providers/googleBooks";
 import { AnilistProvider } from "@/server/providers/anilist";
 import { OmdbProvider } from "@/server/providers/omdb";
 import { defaultLocale, isLocale, locales, type Locale } from "@/i18n/config";
+import { hasLatinCharacters } from "@/lib/non-latin-filter";
 
 export interface CliOptions {
   provider: string;
@@ -93,13 +94,36 @@ export async function runIngest(options: CliOptions): Promise<RunIngestResult> {
     throw new Error("Either --query or --discover must be provided");
   }
 
+  // Always enrich items from discover (they come truncated from TMDb)
+  // Also enrich for TMDb search results as they may be truncated
+  // IMPORTANT: Enrich BEFORE filtering to ensure anime detection works correctly
+  // The enrichment process (fetchById) uses mapDetail which has full genre information
+  // and can properly detect anime, while search results only have genre_ids
+  const shouldAlwaysEnrich = Boolean(options.discover || (provider.name === "tmdb" && options.query));
+  const items = await enrichResults(results, provider, shouldAlwaysEnrich);
+  
+  // Apply type filter AFTER enrichment to ensure anime detection is complete
+  // This ensures anime detected during enrichment is excluded when searching for movie/tv
   if (options.type && options.type !== "any") {
     const normalizedType = options.type === "series" ? "tv" : options.type;
-    results = results.filter((item) => item.type === normalizedType);
+    // Filter by type, but EXCLUDE anime when searching for movie or tv
+    // This ensures anime is never added as movie or tv
+    const filteredItems = items.filter((item) => {
+      // If searching for movie or tv, exclude anime
+      if ((normalizedType === "movie" || normalizedType === "tv") && item.type === "anime") {
+        return false;
+      }
+      // Otherwise, match the requested type
+      return item.type === normalizedType;
+    });
+    
+    // Replace items with filtered items
+    items.length = 0;
+    items.push(...filteredItems);
   }
 
-  if (!results.length) {
-    console.warn("No items returned by provider");
+  if (!items.length) {
+    console.warn("No items returned by provider after filtering");
     await prisma.$disconnect();
     return {
       processed: 0,
@@ -108,15 +132,11 @@ export async function runIngest(options: CliOptions): Promise<RunIngestResult> {
     };
   }
 
-  // Always enrich items from discover (they come truncated from TMDb)
-  // Also enrich for TMDb search results as they may be truncated
-  const shouldAlwaysEnrich = Boolean(options.discover || (provider.name === "tmdb" && options.query));
-  const items = await enrichResults(results, provider, shouldAlwaysEnrich);
-
-  // Add source to items for provider-specific normalization
+  // Add source and voteCount to items for provider-specific normalization
   const itemsWithSource = items.map((item) => ({
     ...item,
     source: item.source ?? "mock",
+    voteCount: item.voteCount ?? null,
   }));
   const popularity = normalizePopularityBatch(itemsWithSource);
   const embeddings = getEmbeddings();
@@ -539,7 +559,23 @@ function mergeProviderItems(base: ProviderItem, detail: ProviderItem): ProviderI
     posterUrl: detail.posterUrl ?? base.posterUrl,
     providerUrl: detail.providerUrl ?? base.providerUrl,
     availability: detail.availability && detail.availability.length ? detail.availability : base.availability,
-    popularityRaw: detail.popularityRaw ?? base.popularityRaw,
+    // Prefer vote_average from detail (more accurate), but only if it's a valid vote_average (0-10)
+    // If detail has vote_average (0-10), use it; otherwise fall back to base
+    // This ensures we use the correct vote_average instead of popularity metric
+    popularityRaw: (() => {
+      if (detail.popularityRaw != null && detail.popularityRaw >= 0 && detail.popularityRaw <= 10) {
+        // This is a valid vote_average from detail endpoint
+        return detail.popularityRaw;
+      }
+      // If base has a valid vote_average, use it
+      if (base.popularityRaw != null && base.popularityRaw >= 0 && base.popularityRaw <= 10) {
+        return base.popularityRaw;
+      }
+      // Otherwise, prefer detail over base (detail might have updated popularity)
+      return detail.popularityRaw ?? base.popularityRaw;
+    })(),
+    // Prefer vote_count from detail (more accurate)
+    voteCount: detail.voteCount ?? base.voteCount ?? null,
     franchiseKey: detail.franchiseKey ?? base.franchiseKey,
     localizations: mergeLocalizationArrays(base.localizations, detail.localizations),
   };
@@ -608,17 +644,6 @@ function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function hasLatinCharacters(value: string | null | undefined): boolean {
-  if (!value) return false;
-  // Check if it has at least one Latin character
-  const hasLatin = /[A-Za-zÁÉÍÓÚÑáéíóúñÀÈÌÒÙàèìòùÂÊÎÔÛâêîôûÄËÏÖÜäëïöüÇç]/.test(value);
-  if (!hasLatin) return false;
-  // Check if it contains CJK (Chinese, Japanese, Korean) characters
-  // This includes Hiragana, Katakana, Kanji, Hangul, and Chinese characters
-  const hasCJK = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF\u3400-\u4DBF\uAC00-\uD7AF]/.test(value);
-  // If it has CJK characters, reject it (we only want translated titles)
-  return !hasCJK;
-}
 
 async function main() {
   const options = parseCli();

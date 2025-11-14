@@ -10,6 +10,7 @@ import { requireDatabaseUrl } from "@/env";
 import { buildDefaultAvailability } from "@/lib/availability";
 import { computeFranchiseKey } from "@/lib/franchise";
 import { normalizePopularityBatch } from "@/lib/popularity";
+import { hasLatinCharacters } from "@/lib/non-latin-filter";
 import { getEmbeddings } from "@/server/embeddings";
 import { prisma } from "@/server/db/client";
 import { defaultLocale } from "@/i18n/config";
@@ -52,6 +53,13 @@ async function main() {
 
   for (let index = 0; index < items.length; index += 1) {
     const item = items[index];
+    
+    // Skip items with non-Latin titles
+    if (!hasLatinCharacters(item.title)) {
+      console.warn(`[Seed] Skipping non-Latin title: ${item.title}`);
+      continue;
+    }
+    
     const embedding = embedded[index] ?? [];
     const vectorLiteral = embeddingToLiteral(embedding);
     const availability = JSON.stringify(

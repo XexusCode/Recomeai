@@ -2,6 +2,7 @@ export interface PopularityCandidate {
   popularityRaw?: number | null;
   synopsis?: string | null;
   source?: string;
+  voteCount?: number | null; // For TMDb: number of votes for vote_average
 }
 
 /**
@@ -33,10 +34,18 @@ export function normalizePopularityBatch(items: PopularityCandidate[]): number[]
         // TMDb: Now using vote_average (user rating 0-10) instead of popularity
         // vote_average is the actual user rating, which is more meaningful
         // Scale: 0-10 → 0-100 (multiply by 10)
+        // Penalty: If vote_count < 50, reduce by 50 points (5.0 in raw scale)
         // Example: 8.6 → 86, 7.5 → 75, 9.2 → 92
         if (raw <= 10) {
-          // This is vote_average (0-10 scale), multiply by 10
-          return clamp(raw * 10, 0, 100);
+          // This is vote_average (0-10 scale)
+          let adjustedRaw = raw;
+          // Apply penalty if vote_count < 50
+          const voteCount = item.voteCount ?? 0;
+          if (voteCount < 50) {
+            adjustedRaw = Math.max(0, raw - 5.0); // Reduce by 50 points (5.0 in 0-10 scale = 50 in 0-100 scale)
+          }
+          // Multiply by 10 to get 0-100 scale
+          return clamp(adjustedRaw * 10, 0, 100);
         } else {
           // Fallback: old popularity metric (values can be > 10)
           // Values < 100: multiply by 1.2

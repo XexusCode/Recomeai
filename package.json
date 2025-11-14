@@ -29,6 +29,13 @@
     "ingest:sample": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/ingest-sample.ts",
     "ingest:sample-anime": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/ingest-sample-anime.ts",
     "top:anime": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/top-anime.ts",
+    "check:series": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/check-series.ts",
+    "test:anime-detection": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/test-anime-detection.ts",
+    "test:vote-penalty": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/test-vote-penalty.ts",
+    "check:non-latin": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/check-non-latin.ts",
+    "find:non-latin": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/find-non-latin.ts",
+    "test:non-latin-filter": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/test-non-latin-filter.ts",
+    "check:vote-count": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/check-vote-count.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy"

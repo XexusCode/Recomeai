@@ -236,7 +236,9 @@ export class TmdbProvider implements ContentProvider {
         : null,
       // Use vote_average (user rating 0-10) instead of popularity
       // vote_average represents actual user ratings, which is more meaningful
-      popularityRaw: result.vote_average != null && result.vote_average > 0 ? result.vote_average : result.popularity ?? null,
+      // Only use popularity as fallback if vote_average is null/undefined (not if it's 0, as 0 is a valid rating)
+      popularityRaw: result.vote_average != null ? result.vote_average : result.popularity ?? null,
+      voteCount: result.vote_count ?? null,
       providerUrl: this.buildProviderUrl(mediaType, result.id),
       availability: buildDefaultAvailability(title, detectedType, defaultLocale),
       franchiseKey: computeFranchiseKey(title),
@@ -251,12 +253,17 @@ export class TmdbProvider implements ContentProvider {
     const year = this.extractYear(mediaType === "movie" ? result.release_date : result.first_air_date);
     const genres = result.genres?.map((genre) => genre.name) ?? [];
     // Detect anime based on genres and country of origin (for both movies and TV shows)
-    const isAnimation = genres.some((g) => g.toLowerCase() === "animation" || g.toLowerCase() === "anime");
+    // More strict detection: must have Animation genre AND be from Japan
+    const isAnimation = genres.some((g) => {
+      const genreLower = g.toLowerCase();
+      return genreLower === "animation" || genreLower === "anime" || genreLower === "anime & manga";
+    });
     const originCountries = mediaType === "tv" 
       ? result.origin_country ?? []
       : result.production_countries?.map((c) => c.iso_3166_1) ?? [];
     const isJapanese = originCountries.includes("JP") || result.original_language === "ja";
     // Detect anime for both movies and TV shows
+    // Only classify as anime if it has Animation genre AND is Japanese
     const detectedType = isAnimation && isJapanese ? "anime" : mediaType;
     return {
       id: `tmdb-${detectedType}:${result.id}`,
@@ -272,7 +279,8 @@ export class TmdbProvider implements ContentProvider {
         : null,
       // Use vote_average (user rating 0-10) instead of popularity
       // vote_average represents actual user ratings, which is more meaningful
-      popularityRaw: result.vote_average != null && result.vote_average > 0 ? result.vote_average : result.popularity ?? null,
+      // Only use popularity as fallback if vote_average is null/undefined (not if it's 0, as 0 is a valid rating)
+      popularityRaw: result.vote_average != null ? result.vote_average : result.popularity ?? null,
       providerUrl: result.homepage ?? this.buildProviderUrl(mediaType, result.id),
       availability: buildDefaultAvailability(title, detectedType, defaultLocale),
       franchiseKey: computeFranchiseKey(title),
