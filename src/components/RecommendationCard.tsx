@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 
 import { AvailabilityLogo } from "@/components/AvailabilityLogo";
@@ -102,6 +102,16 @@ export function RecommendationCard({ item, placeholder = false, locale }: Recomm
     }
     return JSON.stringify(base);
   }, [item, locale, synopsis]);
+
+  useEffect(() => {
+    if (!placeholder && item && !item.posterUrl) {
+      console.warn("[RecommendationCard] Missing poster", {
+        id: item.id,
+        title: item.title,
+        source: item.source,
+      });
+    }
+  }, [item, placeholder]);
 
   const handleKeyDown: React.KeyboardEventHandler<HTMLElement> = (event) => {
     if (event.defaultPrevented) return;
