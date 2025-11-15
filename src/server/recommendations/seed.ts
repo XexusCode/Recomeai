@@ -3,7 +3,7 @@ import { Prisma, type Source } from "@prisma/client";
 import { getEmbeddings } from "@/server/embeddings";
 import { prisma } from "@/server/db/client";
 import { searchProviders, getProvider } from "@/server/providers/registry";
-import { ProviderItem, ProviderSearchOptions, RecommendationPayload } from "@/lib/types";
+import { ProviderItem, ProviderSearchOptions, ProviderName, RecommendationPayload } from "@/lib/types";
 import { RecommendationFilters } from "@/server/recommendations/retrieve";
 
 export interface SeedResolution {
@@ -45,13 +45,16 @@ export async function resolveSeed(
     
     // Prefer provider if it's an exact match or starts with query
     if (isProviderExact || providerStartsWith) {
+      // Enrich genres for reality shows (add "Reality" genre if synopsis/title indicates it)
+      const enrichedItem = enrichGenresForReality(providerItem);
+      
       const embeddings = getEmbeddings();
-      const text = buildEmbeddingText(providerItem);
+      const text = buildEmbeddingText(enrichedItem);
       const [vector] = await embeddings.embed([text]);
       return {
         embedding: vector ?? [],
-        anchor: providerToPayload(providerItem),
-        providerFallback: providerItem,
+        anchor: providerToPayload(enrichedItem),
+        providerFallback: enrichedItem,
       };
     }
   }
@@ -227,7 +230,54 @@ async function resolveFromProviders(
   if (!items.length) {
     return null;
   }
-  return items[0];
+  
+  // Prefer exact matches
+  const queryLower = query.toLowerCase().trim();
+  const exactMatch = items.find(item => item.title.toLowerCase().trim() === queryLower);
+  let selectedItem = exactMatch ?? items[0];
+  
+  // If item has no genres, try to fetch full details to get genres
+  // This is important for reality shows and other content that needs genre matching
+  if ((!selectedItem.genres || selectedItem.genres.length === 0) && selectedItem.id) {
+    // Try current provider first
+    const currentProvider = getProvider(selectedItem.source as ProviderName);
+    if (currentProvider && typeof currentProvider.fetchById === "function") {
+      try {
+        const fullDetails = await currentProvider.fetchById(selectedItem.id);
+        if (fullDetails && fullDetails.genres && fullDetails.genres.length > 0) {
+          // Merge genres from full details with other properties from search result
+          selectedItem = { ...selectedItem, genres: fullDetails.genres, synopsis: fullDetails.synopsis ?? selectedItem.synopsis };
+        }
+      } catch (error) {
+        // Silently fail and try alternative providers
+      }
+    }
+    
+    // If still no genres and current provider is OMDb, try TMDb
+    // TMDb typically has better genre data
+    if ((!selectedItem.genres || selectedItem.genres.length === 0) && selectedItem.source === "omdb") {
+      const tmdbItem = items.find(item => item.source === "tmdb" && item.title.toLowerCase().trim() === queryLower);
+      if (tmdbItem) {
+        const tmdbProvider = getProvider("tmdb");
+        if (tmdbProvider && typeof tmdbProvider.fetchById === "function") {
+          try {
+            const tmdbDetails = await tmdbProvider.fetchById(tmdbItem.id);
+            if (tmdbDetails && tmdbDetails.genres && tmdbDetails.genres.length > 0) {
+              // Use TMDb item if it has genres
+              selectedItem = { ...tmdbItem, genres: tmdbDetails.genres, synopsis: tmdbDetails.synopsis ?? tmdbItem.synopsis };
+            }
+          } catch (error) {
+            // Silently fail
+          }
+        }
+      }
+    }
+  }
+  
+  // Enrich genres for reality shows (add "Reality" genre if synopsis/title indicates it)
+  selectedItem = enrichGenresForReality(selectedItem);
+  
+  return selectedItem;
 }
 
 function buildEmbeddingText(item: ProviderItem): string {
@@ -239,6 +289,43 @@ function buildEmbeddingText(item: ProviderItem): string {
     lines.push(item.synopsis);
   }
   return lines.join("\n");
+}
+
+function enrichGenresForReality(item: ProviderItem): ProviderItem {
+  // Check if item is a reality show but doesn't have "Reality" or "Game Show" genre
+  const hasRealityGenre = item.genres?.some(g => {
+    const gLower = g.toLowerCase();
+    return gLower.includes("reality") || gLower.includes("game show") || gLower.includes("competition");
+  });
+  
+  if (hasRealityGenre) {
+    return item; // Already has reality genre
+  }
+  
+  // Check synopsis and title for reality show indicators
+  const synopsisLower = (item.synopsis ?? "").toLowerCase();
+  const titleLower = item.title.toLowerCase();
+  const realityKeywords = [
+    "reality show", "reality tv", "game show", "competition", "contest",
+    "elimination", "survivor", "challenge", "alliance", "strateg",
+    "alliances", "wits", "brains", "showdown", "million won", 
+    "cash prize", "winner takes all", "eliminated",
+    "contestants", "player", "round", "episode", "season"
+  ];
+  
+  const isRealityShow = realityKeywords.some(keyword => 
+    synopsisLower.includes(keyword) || titleLower.includes(keyword)
+  );
+  
+  if (isRealityShow) {
+    // Add "Reality" genre if not present
+    const genres = item.genres ?? [];
+    if (!genres.some(g => g.toLowerCase().includes("reality"))) {
+      return { ...item, genres: [...genres, "Reality"] };
+    }
+  }
+  
+  return item;
 }
 
 function providerToPayload(item: ProviderItem): RecommendationPayload {

@@ -51,6 +51,8 @@
     "find:mixed-non-latin": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/find-mixed-non-latin.ts",
     "find:non-latin-localizations": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/find-non-latin-localizations.ts",
     "check:seed-resolution": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/check-seed-resolution.ts",
+    "check:devils-plan-genres": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/check-devils-plan-genres.ts",
+    "test:devils-plan-recommendations": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/test-devils-plan-recommendations.ts",
     "test:from-high-relevance": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register src/scripts/test-from-in-high-relevance.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
