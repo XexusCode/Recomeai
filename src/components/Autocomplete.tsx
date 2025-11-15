@@ -8,6 +8,7 @@ import type { MutableRefObject } from "react";
 import useSWR from "swr";
 
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import { hasLatinCharacters } from "@/lib/non-latin-filter";
 import type { Suggestion } from "@/lib/types";
 
 interface AutocompleteProps {
@@ -60,7 +61,11 @@ export function Autocomplete({
     { keepPreviousData: true },
   );
 
-  const suggestions = useMemo(() => data?.suggestions ?? [], [data]);
+  const suggestions = useMemo(() => {
+    const raw = data?.suggestions ?? [];
+    // Filter out non-Latin titles as a safety measure (should already be filtered server-side)
+    return raw.filter((suggestion) => hasLatinCharacters(suggestion.title));
+  }, [data]);
 
   useEffect(() => {
     if (selected) {

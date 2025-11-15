@@ -1,6 +1,7 @@
 import { ItemType, Prisma, Source } from "@prisma/client";
 
 import { getEmbeddings } from "@/server/embeddings";
+import { hasLatinCharacters } from "@/lib/non-latin-filter";
 import { applyDiversity } from "@/server/recommendations/diversity";
 import { generateReasons } from "@/server/recommendations/reasons";
 import { RecommendationFilters, retrieveCandidates } from "@/server/recommendations/retrieve";
@@ -632,31 +633,38 @@ async function hydrateLocalizations(items: RecommendationPayload[], locale: Loca
     grouped.get(row.itemId)!.set(row.locale, row as LocalizationRow);
   }
 
+  // Build fallback lookup, but only select localizations with valid Latin titles
   const fallbackLookup = new Map<string, LocalizationRow>();
   for (const itemId of uniqueIds) {
     const byLocale = grouped.get(itemId);
     if (!byLocale) continue;
+    // Try each locale in fallback order until we find a valid Latin title
     for (const candidateLocale of fallbackOrder) {
       const record = byLocale.get(candidateLocale);
-      if (record) {
+      if (record && record.title && record.title.trim() && hasLatinCharacters(record.title)) {
+        // Found a valid Latin localized title
         fallbackLookup.set(itemId, record);
         break;
+      } else if (record && record.title && record.title.trim()) {
+        // Found a localization but title is non-Latin, continue to next locale in fallback
+        console.warn(`[hydrateLocalizations] Skipping non-Latin localized title: "${record.title}" (item: ${itemId}, locale: ${candidateLocale}). Trying next fallback...`);
       }
+      // If record doesn't exist or has no title, continue to next locale in fallback
     }
   }
 
   items.forEach((item) => {
     const localization = fallbackLookup.get(item.id);
     if (!localization) {
+      // No valid Latin localization found, use original title (English, which should be Latin)
       item.locale = defaultLocale;
       return;
     }
     item.locale = isLocale(localization.locale) ? localization.locale : defaultLocale;
-    // Only update title if localization has a valid title (not empty or undefined)
+    // At this point, we know the localization title is valid and Latin
     if (localization.title && localization.title.trim()) {
       item.title = localization.title;
     }
-    // Preserve original title if localization title is missing/invalid
     if (localization.synopsis) {
       item.synopsis = localization.synopsis;
     }

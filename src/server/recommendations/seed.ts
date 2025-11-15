@@ -17,17 +17,58 @@ export async function resolveSeed(
   filters: RecommendationFilters,
 ): Promise<SeedResolution> {
   const local = await findLocalSeed(query, filters);
+  // Only use local seed if it's an exact or very close match
+  // This prevents using similar but different titles (e.g., "The Buried Tree Devil" for "The Devil's Plan")
+  if (local?.anchor) {
+    const localTitle = local.anchor.title.toLowerCase().trim();
+    const queryTitle = query.toLowerCase().trim();
+    const isExactMatch = localTitle === queryTitle;
+    const startsWithQuery = localTitle.startsWith(queryTitle);
+    
+    // Use local seed only if exact match or starts with query
+    // For partial matches, prefer fetching from providers to get the exact title
+    if (isExactMatch || startsWithQuery) {
+      return local;
+    }
+    // If similarity match but not exact/starts-with, check providers first
+    // This ensures we get the correct item if it exists in providers
+  }
+
+  // Search providers for exact match
+  const providerItem = await resolveFromProviders(query, filters);
+  if (providerItem) {
+    // Verify provider item matches query better than local result
+    const providerTitle = providerItem.title.toLowerCase().trim();
+    const queryTitle = query.toLowerCase().trim();
+    const isProviderExact = providerTitle === queryTitle;
+    const providerStartsWith = providerTitle.startsWith(queryTitle);
+    
+    // Prefer provider if it's an exact match or starts with query
+    if (isProviderExact || providerStartsWith) {
+      const embeddings = getEmbeddings();
+      const text = buildEmbeddingText(providerItem);
+      const [vector] = await embeddings.embed([text]);
+      return {
+        embedding: vector ?? [],
+        anchor: providerToPayload(providerItem),
+        providerFallback: providerItem,
+      };
+    }
+  }
+  
+  // If no exact match in providers, fall back to local result if available
   if (local) {
     return local;
   }
-
-  const providerItem = await resolveFromProviders(query, filters);
+  
+  // No match found, use query embedding
   if (!providerItem) {
     const embeddings = getEmbeddings();
     const [vector] = await embeddings.embed([query]);
     return { embedding: vector ?? [], anchor: null, providerFallback: null };
   }
 
+  // Use provider item even if not exact (last resort)
   const embeddings = getEmbeddings();
   const text = buildEmbeddingText(providerItem);
   const [vector] = await embeddings.embed([text]);
@@ -94,7 +135,17 @@ async function findLocalSeed(
       i.source
     FROM "Item" i
     WHERE ${where}
-    ORDER BY similarity(i.title, ${query}) DESC, i.popularity DESC, i.year DESC NULLS LAST
+    ORDER BY 
+      -- Priority 1: Exact match (case-insensitive)
+      CASE WHEN LOWER(TRIM(i.title)) = LOWER(TRIM(${query})) THEN 0 ELSE 1 END,
+      -- Priority 2: Title starts with query (case-insensitive)
+      CASE WHEN LOWER(TRIM(i.title)) LIKE LOWER(TRIM(${query})) || '%' THEN 0 ELSE 1 END,
+      -- Priority 3: Similarity score (higher is better)
+      similarity(i.title, ${query}) DESC,
+      -- Priority 4: Popularity (higher is better)
+      i.popularity DESC,
+      -- Priority 5: Year (newer first)
+      i.year DESC NULLS LAST
     LIMIT 1
   `);
   

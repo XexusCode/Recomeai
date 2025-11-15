@@ -25,7 +25,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ suggestions: [] });
     }
 
-    const suggestions = toSuggestions(results, Math.min(limit, 12));
+    const suggestions = toSuggestions(results, Math.min(limit, 12), query);
     return NextResponse.json({ suggestions });
   } catch (error) {
     console.error("Autocomplete error", error);

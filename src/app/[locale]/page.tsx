@@ -292,7 +292,10 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
   }, [strings.home.emptyPrompt]);
 
   const handleSelection = (selection: { suggestion?: Suggestion; query: string }) => {
-    setQuery(selection.query);
+    // If a suggestion is selected, use its title as the query (not the user's typed query)
+    // This ensures recommendations are based on the actual selected item, not the search text
+    const queryToUse = selection.suggestion?.title ?? selection.query;
+    setQuery(queryToUse);
     setSelectedSuggestion(selection.suggestion ?? null);
     if (selection.suggestion && type === "all") {
       setType(selection.suggestion.type as TypeOption);
@@ -300,6 +303,18 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
     setActiveChip(null);
     setActiveYearChip(null);
     setStatusMessage(null);
+    
+    // Auto-trigger search when a suggestion is selected
+    if (selection.suggestion && queryToUse.trim()) {
+      const signature = `${queryToUse.trim()}|${type}|${yearRange[0] ?? ""}-${yearRange[1] ?? ""}|${popularityMin ?? ""}`;
+      startTransition(() => {
+        fetchRecommendationsBatch({
+          searchQuery: queryToUse.trim(),
+          mode: "search",
+          signature,
+        });
+      });
+    }
   };
 
   const fetchRecommendationsBatch = useCallback(
@@ -368,7 +383,10 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    const trimmedQuery = query.trim();
+    // Priority: use selectedSuggestion title if available, otherwise use query
+    // This ensures recommendations are based on the selected item, not just the search text
+    const queryToUse = selectedSuggestion?.title ?? query.trim();
+    const trimmedQuery = queryToUse.trim();
     const mode: RecommendationMode = trimmedQuery ? "search" : "random";
 
     if (showLoadMore && !isPending && currentMode === mode) {
@@ -478,13 +496,17 @@ export default function Home({ params }: { params: Promise<{ locale: string }> }
     setStatusMessage({ type: "info", text: strings.home.readyPrompt });
   };
 
-  const anchorTitleRaw = anchor?.title ?? selectedSuggestion?.title ?? query;
+  // Priority: selectedSuggestion > anchor > query
+  // If user selected a suggestion, use that title (it's what they chose)
+  // Otherwise, use anchor title from server (which may be localized/hydrated)
+  // Finally, fallback to query string
+  const anchorTitleRaw = selectedSuggestion?.title ?? anchor?.title ?? query;
   const anchorTitle = anchorTitleRaw?.trim() ?? "";
-  const anchorYear = anchor?.year ?? selectedSuggestion?.year ?? null;
-  const anchorTypeLabel = anchor?.type
-    ? typeLabelSingular(anchor.type)
-    : selectedSuggestion?.type
+  const anchorYear = selectedSuggestion?.year ?? anchor?.year ?? null;
+  const anchorTypeLabel = selectedSuggestion?.type
     ? typeLabelSingular(selectedSuggestion.type)
+    : anchor?.type
+    ? typeLabelSingular(anchor.type)
     : type !== "all"
     ? typeLabelSingular(type)
     : null;

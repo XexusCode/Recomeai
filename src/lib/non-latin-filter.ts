@@ -6,9 +6,13 @@
 export function hasLatinCharacters(value: string | null | undefined): boolean {
   if (!value) return false;
   
+  // Trim whitespace for validation
+  const trimmed = value.trim();
+  if (!trimmed) return false;
+  
   // STRICT: Title must contain at least one Latin letter (A-Z, a-z)
   // This excludes titles that are ONLY in non-Latin scripts
-  const hasLatinLetter = /[A-Za-z]/.test(value);
+  const hasLatinLetter = /[A-Za-z]/.test(trimmed);
   if (!hasLatinLetter) {
     return false;
   }
@@ -17,7 +21,7 @@ export function hasLatinCharacters(value: string | null | undefined): boolean {
   // Allow Latin characters, numbers, spaces, and common punctuation
   // Block: Chinese, Japanese, Korean, Arabic, Hindi, Telugu, Thai, Cyrillic, etc.
   const nonLatinScripts = [
-    /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF\u3400-\u4DBF]/, // CJK (Chinese, Japanese)
+    /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF\u3400-\u4DBF]/, // CJK (Chinese, Japanese) - includes 水(6c34), 龙(9f99), 吟(541f)
     /[\uAC00-\uD7AF]/, // Hangul (Korean)
     /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/, // Arabic
     /[\u0900-\u097F]/, // Devanagari (Hindi, Sanskrit)
@@ -34,7 +38,7 @@ export function hasLatinCharacters(value: string | null | undefined): boolean {
   
   // If title contains any non-Latin script characters, reject it
   for (const pattern of nonLatinScripts) {
-    if (pattern.test(value)) {
+    if (pattern.test(trimmed)) {
       return false;
     }
   }
